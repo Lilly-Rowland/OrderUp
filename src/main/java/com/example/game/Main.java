@@ -95,7 +95,9 @@ public class Main extends Application {
         metricsButton.setOnAction(e -> {
             Queue<Integer> recentCustomers = simulator.getCustomerData();
             Queue<Double> recentRatings = simulator.getRatingData();
-            Scene metricsScene = Metrics.getMetrics(recentCustomers, recentRatings);
+            Queue<Double> recentEarnings = simulator.getRecentEarnings();
+            Queue<Double> recentSpendings = simulator.getRecentSpendings();
+            Scene metricsScene = Metrics.getMetrics(recentCustomers, recentRatings, recentEarnings, recentSpendings);
             Stage popup = new Stage();
             popup.initOwner(primaryStage);
             popup.initModality(Modality.APPLICATION_MODAL);
