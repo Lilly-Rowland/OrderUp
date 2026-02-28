@@ -41,11 +41,6 @@ public class Main extends Application {
         centralImage.setPreserveRatio(true);
         centralImage.setFitWidth(200);
 
-    // buttons and state (directional placeholders removed)
-
-    // backend simulator handles state and calculations
-    // RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
-
         // Log area on center-right
         // Create Log Area
         TextArea logArea = new TextArea();
@@ -65,10 +60,10 @@ public class Main extends Application {
         Label customersLabel = new Label(String.format("Customers: %d", simulator.getNumCustomers()));
         Label sizeLabel = new Label(String.format("Size: %d", simulator.getSize()));
         Label ratingLabel = new Label(String.format("Rating: %.2f", simulator.getRating()));
-
-        Button totalMoneyButton = new Button();
-        totalMoneyButton.setFocusTraversable(false);
-        updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
+    
+            Button totalMoneyButton = new Button();
+            totalMoneyButton.setFocusTraversable(false);
+            updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
 
         Button upgradeSizeButton = new Button("Upgrade size");
         upgradeSizeButton.setOnAction(e -> {
@@ -84,15 +79,12 @@ public class Main extends Application {
         // Metrics button (same action as before)
         Button metricsButton = new Button("metrics");
         metricsButton.setOnAction(e -> {
-            Scene metricsScene = Metrics.getMetrics();
+            Queue<Integer> recentCustomers = simulator.getUpdatedData();
+            Scene metricsScene = Metrics.getMetrics(recentCustomers);
             Stage popup = new Stage();
             popup.initOwner(primaryStage);
             popup.initModality(Modality.APPLICATION_MODAL);
             popup.setTitle("METRICS");
-            String text = String.format("Year=%d Month=%02d\nTotal=%.2f\nSize=%d Rating=%.2f\nCustomers=%d", simulator.getYear(), simulator.getMonth(), simulator.getTotalMoney(), simulator.getSize(), simulator.getRating(), simulator.getNumCustomers());
-            Label msg = new Label(text);
-            VBox box = new VBox(10, msg);
-            box.setPadding(new Insets(10));
             popup.setScene(metricsScene);
             popup.showAndWait();
         });
@@ -111,13 +103,15 @@ public class Main extends Application {
             customersLabel.setText(String.format("Customers: %d", r.customers));
             sizeLabel.setText(String.format("Size: %d", r.size));
             ratingLabel.setText(String.format("Rating: %.2f", r.rating));
-            appendLog(logArea, String.format("Advanced to %d-%02d: customers=%d, size=%d, rating=%.2f, random change %.2f, earnings +%.2f, rent -%.2f, wage -%d, total %.2f, cumulative earnings %.2f", r.year, r.month, r.customers, r.size, r.rating, r.delta, r.monthlyEarnings, r.rent, r.employeeWage, r.totalMoney, r.totalEarnings));
-            // update stats
-            rentLabel.setText(String.format("Rent: $%.2f", r.rent));
-            lastSpendingLabel.setText(String.format("Last month wage: $%d | delta: %.2f", r.employeeWage, r.delta));
+            appendLog(logArea, String.format("Advanced to %d-%02d: customers=%d, size=%d, rating=%.2f, random change %.2f, earnings +%.2f, rent -%.2f, total %.2f, cumulative earnings %.2f", r.year, r.month, r.customers, r.size, r.rating, r.delta, r.monthlyEarnings, r.rent, r.totalMoney, r.totalEarnings));
+            simulator.updateData();
         });
 
-        // Set up new 3-column top bar
+    // Create Menu button (opens popup to edit menu)
+    Button menuButton = menuManager.createMenuButton(primaryStage);
+
+
+        // Set up scene layout
         BorderPane root = new BorderPane();
         root.setCenter(centralImage);
 
@@ -224,7 +218,7 @@ public class Main extends Application {
         }
         logArea.positionCaret(logArea.getText().length());
     }
-
+    
     public static void main(String[] args) {
         launch(args);
     }

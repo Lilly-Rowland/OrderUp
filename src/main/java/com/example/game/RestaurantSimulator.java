@@ -1,7 +1,9 @@
 package com.example.game;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 
 public class RestaurantSimulator {
@@ -19,6 +21,13 @@ public class RestaurantSimulator {
     private final List<MenuItem> menu = new ArrayList<>(); //current menu
     private final Random rand = new Random();
     private double popularity = 0.5; // 0.0 - 1.0
+    // Metric Trackings
+    private Queue<Integer> recentCustomers = new LinkedList<>();
+   /* private Queue<Integer> recentRatings;
+    private Queue<Integer> recentEarnings;
+    private Queue<Integer> recentSpendings;*/
+
+
 
     // employee wage: base pay and computed monthly wage
     private final int baseEmployeePay = 10;
@@ -31,7 +40,7 @@ public class RestaurantSimulator {
         this.year = startYear;
         this.month = startMonth;
         this.totalMoney = startTotalMoney;
-        this.rent = rent; // will be overridden by derived rent after size is set
+        this.rent = rent; // will be overridden by derived rent after size set
         this.monthlyEarnings = 0.0;
         this.totalEarnings = 0.0;
         this.size = 20; // starting capacity is 10 (also starting customers)
@@ -207,5 +216,19 @@ public class RestaurantSimulator {
             this.employeeWage = employeeWage;
         }
 
+    }
+
+    public Queue<Integer> getUpdatedData() {
+        return recentCustomers;
+    }
+
+    public void updateData() {
+        if(recentCustomers.size() < 12){
+            recentCustomers.add(size);
+        }else{
+            recentCustomers.remove();
+            recentCustomers.add(size);
+        }
+        
     }
 }
