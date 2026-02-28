@@ -20,9 +20,13 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Initialize backend components
-        RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
-        Metrics metrics = new Metrics();
-        MenuManager menuManager = new MenuManager();
+    RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
+    // Metrics UI helper is available via Metrics.getMetrics() when needed
+    // a VBox that will show the current menu items in the main UI
+    VBox menuDisplay = new VBox(4);
+    menuDisplay.setPadding(new Insets(6));
+    menuDisplay.setPrefWidth(200);
+    Menu menuManager = new Menu(simulator, menuDisplay);
 
         // CREATE MAIN WINDOW
         primaryStage.setTitle("Simple 2D Game Framework");
@@ -84,7 +88,7 @@ public class Main extends Application {
             popup.setTitle("Customize Menu (placeholder)");
             TextArea ta = new TextArea("This is a placeholder for customize menu.\nAdd controls here later.");
             ta.setWrapText(true);
-            ta.setEditable(false);
+    HBox topRightHBox = new HBox(8, totalMoneyButton);
             Scene s = new Scene(ta, 300, 200);
             popup.setScene(s);
             popup.showAndWait();
@@ -93,7 +97,6 @@ public class Main extends Application {
         // Create Metrics Button
         Button metricsButton = new Button("metrics");
         metricsButton.setOnAction(e -> {
-            Scene metricsScene = Metrics.getMetrics();
             Stage popup = new Stage();
             popup.initOwner(primaryStage);
             popup.initModality(Modality.APPLICATION_MODAL);
@@ -102,8 +105,7 @@ public class Main extends Application {
             Label msg = new Label(text);
             VBox box = new VBox(10, msg);
             box.setPadding(new Insets(10));
-            Scene ps = new Scene(box, 320, 100);
-            popup.setScene(metricsScene);
+            popup.setScene(new Scene(box, 320, 100));
             popup.showAndWait();
         });
 
@@ -120,15 +122,15 @@ public class Main extends Application {
             appendLog(logArea, String.format("Advanced to %d-%02d: customers=%d, size=%d, rating=%.2f, random change %.2f, earnings +%.2f, rent -%.2f, total %.2f, cumulative earnings %.2f", r.year, r.month, r.customers, r.size, r.rating, r.delta, r.monthlyEarnings, r.rent, r.totalMoney, r.totalEarnings));
         });
 
-        // Create Menu button
-        Button menuButton = menuManager.createMenuButton();
+    // Create Menu button (opens popup to edit menu)
+    Button menuButton = menuManager.createMenuButton(primaryStage);
 
 
         // Set up scene layout
         BorderPane root = new BorderPane();
         root.setCenter(centralImage);
 
-        VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton, monthlyEarningsLabel, customersLabel, sizeLabel, ratingLabel, upgradeSizeButton);
+    VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton, monthlyEarningsLabel, customersLabel, sizeLabel, ratingLabel, menuDisplay, upgradeSizeButton);
         topLeftVBox.setAlignment(Pos.TOP_LEFT);
         topLeftVBox.setPadding(new Insets(8));
 

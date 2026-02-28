@@ -17,15 +17,20 @@ public class RestaurantSimulator {
     private final List<MenuItem> menu = new ArrayList<>();
     private final Random rand = new Random();
     private double popularity = 0.5; // 0.0 - 1.0
+    // employee wage: base pay and computed monthly wage (integer)
+    private final int baseEmployeePay = 10;
+    private int employeeWage = baseEmployeePay;
+    // cached average menu quality (0.0 - 1.0)
+    private double avgMenuQuality = 0.0;
 
     public RestaurantSimulator(int startYear, int startMonth, double startTotalMoney, double rent) {
         this.year = startYear;
         this.month = startMonth;
-        this.totalMoney = startTotalMoney;
-    this.rent = rent; // will be overridden by derived rent after size set
-    this.monthlyEarnings = 0.0;
-    this.totalEarnings = 0.0;
-    this.size = 20; // starting capacity is 10 (also starting customers)
+            this.totalMoney = startTotalMoney;
+        this.rent = rent; // will be overridden by derived rent after size set
+        this.monthlyEarnings = 0.0;
+        this.totalEarnings = 0.0;
+        this.size = 20; // starting capacity is 10 (also starting customers)
         this.rating = 3.0; // neutral default
     // derive rent from size
     this.rent = this.size * 50.0;
@@ -94,13 +99,22 @@ public class RestaurantSimulator {
     private void recomputeRatingFromMenu() {
         if (menu.isEmpty()) {
             rating = 3.0;
+            avgMenuQuality = 0.0;
             return;
         }
         double sumQuality = 0.0;
         for (MenuItem it : menu) sumQuality += it.quality;
         double avgQuality = sumQuality / menu.size();
+        this.avgMenuQuality = avgQuality;
 
-        rating = 1.0 + avgQuality * 4.0;
+        // If average quality is below 0.2, floor rating at 1.0
+        if (avgQuality < 0.2) {
+            rating = 1.0;
+        } else {
+            // map avgQuality in [0.2 .. 1.0] -> rating [1.0 .. 5.0]
+            double t = (avgQuality - 0.2) / (1.0 - 0.2); // 0..1
+            rating = 1.0 + t * 4.0;
+        }
     }
 
     public AdvanceResult advanceMonth() {
@@ -119,12 +133,17 @@ public class RestaurantSimulator {
     popularity = 0.1 + (rating - 1.0) * (0.9 / 4.0);
     if (popularity < 0.1) popularity = 0.1;
     if (popularity > 1.0) popularity = 1.0;
-        double avgPrice = 50.0;
+        // compute average price from the current menu; fallback to 50.0 when menu is empty
+        double avgPrice;
         if (!menu.isEmpty()) {
             double sum = 0.0;
             for (MenuItem it : menu) sum += it.price;
             avgPrice = sum / menu.size();
+        } else {
+            avgPrice = 50.0;
         }
+        // compute employee wage based on average menu quality: wage = basePay * (1 + avgMenuQuality)
+        this.employeeWage = (int)Math.round(baseEmployeePay * (1.0 + this.avgMenuQuality));
     // earnings = avgPrice * capacity * 3 * popularity, with small randomness +/-15%
     double variability = 0.85 + rand.nextDouble() * 0.3; // 0.85 - 1.15
     double earnings = Math.round((avgPrice * size * 3.0 * popularity * variability) * 100.0) / 100.0;
@@ -132,9 +151,12 @@ public class RestaurantSimulator {
         totalEarnings += earnings;
         totalMoney += earnings;
 
-        totalMoney -= rent; // automatic monthly rent deduction
+    // subtract employee wage (monthly spending)
+    totalMoney -= this.employeeWage;
 
-    return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, size, size, rating);
+    totalMoney -= rent; // automatic monthly rent deduction
+
+    return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, size, size, rating, this.employeeWage);
     }
 
     // menu management
@@ -156,6 +178,8 @@ public class RestaurantSimulator {
 
     public synchronized double getRating() { return rating; }
 
+    public synchronized int getEmployeeWage() { return employeeWage; }
+
     public int getYear() { return year; }
     public int getMonth() { return month; }
     public double getTotalMoney() { return totalMoney; }
@@ -174,8 +198,9 @@ public class RestaurantSimulator {
         public final int customers;
         public final int size;
         public final double rating;
+        public final int employeeWage;
 
-        public AdvanceResult(int year, int month, double delta, double monthlyEarnings, double rent, double totalMoney, double totalEarnings, int customers, int size, double rating) {
+        public AdvanceResult(int year, int month, double delta, double monthlyEarnings, double rent, double totalMoney, double totalEarnings, int customers, int size, double rating, int employeeWage) {
             this.year = year;
             this.month = month;
             this.delta = delta;
@@ -186,6 +211,7 @@ public class RestaurantSimulator {
             this.customers = customers;
             this.size = size;
             this.rating = rating;
+            this.employeeWage = employeeWage;
         }
 
     }
