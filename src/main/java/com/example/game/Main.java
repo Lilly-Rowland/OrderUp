@@ -93,6 +93,7 @@ public class Main extends Application {
         // Create Metrics Button
         Button metricsButton = new Button("metrics");
         metricsButton.setOnAction(e -> {
+            Scene metricsScene = Metrics.getMetrics();
             Stage popup = new Stage();
             popup.initOwner(primaryStage);
             popup.initModality(Modality.APPLICATION_MODAL);
@@ -175,7 +176,7 @@ public class Main extends Application {
         bottomBar.setPadding(new Insets(10));
         root.setBottom(bottomBar);
 
-        Scene scene = new Scene(root, 600, 400);
+        Scene scene = new Scene(root, 600, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -204,10 +205,6 @@ public class Main extends Application {
             logArea.setText(prev + "\n" + line);
         }
         logArea.positionCaret(logArea.getText().length());
-    }
-
-    private static void createButtons(){
-        
     }
 
     public static void main(String[] args) {
