@@ -1,123 +1,123 @@
-package com.example.game;
+// package com.example.game;
 
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+// import java.io.InputStreamReader;
+// import java.lang.reflect.Type;
+// import java.util.ArrayList;
+// import java.util.List;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+// import com.google.gson.Gson;
+// import com.google.gson.reflect.TypeToken;
 
-import javafx.geometry.Insets;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+// import javafx.geometry.Insets;
+// import javafx.scene.Scene;
+// import javafx.scene.control.Button;
+// import javafx.scene.control.Label;
+// import javafx.scene.control.ScrollPane;
+// import javafx.scene.layout.VBox;
+// import javafx.stage.Modality;
+// import javafx.stage.Stage;
 
-/**
- * Simple UI helper to manage a restaurant menu. Opens a popup to add items
- * (name, price, quality) and updates the simulator. Also updates a provided
- * VBox in the main UI to list current menu items and prices.
- */
-public class Menu {
+// /**
+//  * Simple UI helper to manage a restaurant menu. Opens a popup to add items
+//  * (name, price, quality) and updates the simulator. Also updates a provided
+//  * VBox in the main UI to list current menu items and prices.
+//  */
+// public class Menu {
 
-    private final RestaurantSimulator simulator;
-    private final VBox menuDisplay;
+//     private final RestaurantSimulator simulator;
+//     private final VBox menuDisplay;
 
-    public Menu(RestaurantSimulator simulator, VBox menuDisplay) {
-        this.simulator = simulator;
-        this.menuDisplay = menuDisplay;
-        refreshDisplay();
-    }
+//     public Menu(RestaurantSimulator simulator, VBox menuDisplay) {
+//         this.simulator = simulator;
+//         this.menuDisplay = menuDisplay;
+//         refreshDisplay();
+//     }
 
-    public Button createMenuButton(Stage owner) {
-        Button menuButton = new Button("Menu");
-        menuButton.setOnAction(e -> openMenuPopup(owner));
-        return menuButton;
-    }
+//     public Button createMenuButton(Stage owner) {
+//         Button menuButton = new Button("Menu");
+//         menuButton.setOnAction(e -> openMenuPopup(owner));
+//         return menuButton;
+//     }
 
-    private void openMenuPopup(Stage owner) {
-        Stage popup = new Stage();
-        popup.initOwner(owner);
-        popup.initModality(Modality.APPLICATION_MODAL);
-        popup.setTitle("Edit Menu");
+//     private void openMenuPopup(Stage owner) {
+//         Stage popup = new Stage();
+//         popup.initOwner(owner);
+//         popup.initModality(Modality.APPLICATION_MODAL);
+//         popup.setTitle("Edit Menu");
 
-        VBox root = new VBox(8);
-        root.setPadding(new Insets(10));
+//         VBox root = new VBox(8);
+//         root.setPadding(new Insets(10));
 
-    // load menu options from JSON resource
-    List<RestaurantSimulator.MenuItem> options = loadOptionsFromJson();
+//     // load menu options from JSON resource
+//     List<RestaurantSimulator.MenuItem> options = loadOptionsFromJson();
 
-    // feedback label for duplicate-add attempts
-    Label feedback = new Label();
+//     // feedback label for duplicate-add attempts
+//     Label feedback = new Label();
 
-        Button close = new Button("Close");
-        close.setOnAction(ev -> popup.close());
+//         Button close = new Button("Close");
+//         close.setOnAction(ev -> popup.close());
 
-        // show available options as selectable buttons
-        VBox optionsBox = new VBox(6);
-        optionsBox.setPadding(new Insets(6));
-        if (options.isEmpty()) {
-            optionsBox.getChildren().add(new Label("(no options available)"));
-        } else {
-            for (RestaurantSimulator.MenuItem opt : options) {
-                Button optBtn = new Button(String.format("%s — $%.2f", opt.name, opt.price));
-                optBtn.setOnAction(ev -> {
-                    // add a copy of the selected option to the simulator menu
-                    RestaurantSimulator.MenuItem it = new RestaurantSimulator.MenuItem(opt.name, opt.price, opt.quality);
-                    List<RestaurantSimulator.MenuItem> m = simulator.getMenu();
-                    boolean exists = false;
-                    for (RestaurantSimulator.MenuItem ex : m) {
-                        if (ex.name.equalsIgnoreCase(it.name)) { exists = true; break; }
-                    }
-                    if (exists) {
-                        feedback.setText("Item already in menu: " + it.name);
-                    } else {
-                        m.add(it);
-                        simulator.setMenu(m);
-                        refreshDisplay();
-                        feedback.setText("Added: " + it.name);
-                    }
-                });
-                optionsBox.getChildren().add(optBtn);
-            }
-        }
+//         // show available options as selectable buttons
+//         VBox optionsBox = new VBox(6);
+//         optionsBox.setPadding(new Insets(6));
+//         if (options.isEmpty()) {
+//             optionsBox.getChildren().add(new Label("(no options available)"));
+//         } else {
+//             for (RestaurantSimulator.MenuItem opt : options) {
+//                 Button optBtn = new Button(String.format("%s — $%.2f", opt.name, opt.price));
+//                 optBtn.setOnAction(ev -> {
+//                     // add a copy of the selected option to the simulator menu
+//                     RestaurantSimulator.MenuItem it = new RestaurantSimulator.MenuItem(opt.name, opt.price, opt.quality);
+//                     List<RestaurantSimulator.MenuItem> m = simulator.getMenu();
+//                     boolean exists = false;
+//                     for (RestaurantSimulator.MenuItem ex : m) {
+//                         if (ex.name.equalsIgnoreCase(it.name)) { exists = true; break; }
+//                     }
+//                     if (exists) {
+//                         feedback.setText("Item already in menu: " + it.name);
+//                     } else {
+//                         m.add(it);
+//                         simulator.setMenu(m);
+//                         refreshDisplay();
+//                         feedback.setText("Added: " + it.name);
+//                     }
+//                 });
+//                 optionsBox.getChildren().add(optBtn);
+//             }
+//         }
 
-        ScrollPane optionsScroll = new ScrollPane(optionsBox);
-        optionsScroll.setPrefHeight(150);
+//         ScrollPane optionsScroll = new ScrollPane(optionsBox);
+//         optionsScroll.setPrefHeight(150);
 
-    root.getChildren().addAll(new Label("Available menu options:"), optionsScroll, feedback, new Label("Current menu:"), menuDisplay, close);
+//     root.getChildren().addAll(new Label("Available menu options:"), optionsScroll, feedback, new Label("Current menu:"), menuDisplay, close);
 
-        Scene s = new Scene(root, 520, 360);
-        popup.setScene(s);
-        popup.showAndWait();
-    }
+//         Scene s = new Scene(root, 520, 360);
+//         popup.setScene(s);
+//         popup.showAndWait();
+//     }
 
-    private void refreshDisplay() {
-        menuDisplay.getChildren().clear();
-        List<RestaurantSimulator.MenuItem> list = simulator.getMenu();
-        if (list.isEmpty()) {
-            menuDisplay.getChildren().add(new Label("(menu empty)"));
-            return;
-        }
-        for (RestaurantSimulator.MenuItem it : list) {
-            Label l = new Label(String.format("%s — $%.2f", it.name, it.price));
-            menuDisplay.getChildren().add(l);
-        }
-    }
+//     private void refreshDisplay() {
+//         menuDisplay.getChildren().clear();
+//         List<RestaurantSimulator.MenuItem> list = simulator.getMenu();
+//         if (list.isEmpty()) {
+//             menuDisplay.getChildren().add(new Label("(menu empty)"));
+//             return;
+//         }
+//         for (RestaurantSimulator.MenuItem it : list) {
+//             Label l = new Label(String.format("%s — $%.2f", it.name, it.price));
+//             menuDisplay.getChildren().add(l);
+//         }
+//     }
 
-    private List<RestaurantSimulator.MenuItem> loadOptionsFromJson() {
-        try (InputStreamReader r = new InputStreamReader(getClass().getResourceAsStream("/menu_options.json"))) {
-            Gson g = new Gson();
-            Type t = new TypeToken<List<RestaurantSimulator.MenuItem>>(){}.getType();
-            List<RestaurantSimulator.MenuItem> list = g.fromJson(r, t);
-            return list != null ? list : new ArrayList<>();
-        } catch (Exception ex) {
-            // resource missing or parse error
-            return new ArrayList<>();
-        }
-    }
-}
+//     private List<RestaurantSimulator.MenuItem> loadOptionsFromJson() {
+//         try (InputStreamReader r = new InputStreamReader(getClass().getResourceAsStream("/menu_options.json"))) {
+//             Gson g = new Gson();
+//             Type t = new TypeToken<List<RestaurantSimulator.MenuItem>>(){}.getType();
+//             List<RestaurantSimulator.MenuItem> list = g.fromJson(r, t);
+//             return list != null ? list : new ArrayList<>();
+//         } catch (Exception ex) {
+//             // resource missing or parse error
+//             return new ArrayList<>();
+//         }
+//     }
+// }

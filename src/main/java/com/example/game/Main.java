@@ -26,10 +26,10 @@ public class Main extends Application {
     VBox menuDisplay = new VBox(4);
     menuDisplay.setPadding(new Insets(6));
     menuDisplay.setPrefWidth(200);
-    Menu menuManager = new Menu(simulator, menuDisplay);
+    MenuManager menuManager = new MenuManager(simulator, menuDisplay);
 
         // CREATE MAIN WINDOW
-        primaryStage.setTitle("Simple 2D Game Framework");
+        primaryStage.setTitle("Order Up");
 
         // Create restaurant image
         Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
