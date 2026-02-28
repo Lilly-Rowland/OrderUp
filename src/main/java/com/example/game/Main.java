@@ -53,6 +53,11 @@ public class Main extends Application {
 
     // Monthly earnings label (placeholder value shown)
     Label monthlyEarningsLabel = new Label(String.format("Monthly earnings: $%.2f", simulator.getMonthlyEarnings()));
+    // Number of customers (fixed)
+    Label customersLabel = new Label(String.format("Customers: %d", simulator.getNumCustomers()));
+    // Restaurant size and rating
+    Label sizeLabel = new Label(String.format("Size: %d", simulator.getSize()));
+    Label ratingLabel = new Label(String.format("Rating: %.2f", simulator.getRating()));
 
         // Customize placeholder button which opens a popup
         Button customizePlaceholder = new Button("cusotmize menu place hold");
@@ -72,7 +77,7 @@ public class Main extends Application {
         // Metrics button (below placeholder)
         Button metricsButton = new Button("metrics");
         metricsButton.setOnAction(e -> {
-            String msg = String.format("Metrics requested - year=%d month=%02d total=%.2f", simulator.getYear(), simulator.getMonth(), simulator.getTotalMoney());
+            String msg = String.format("Metrics requested - year=%d month=%02d total=%.2f size=%d rating=%.2f customers=%d", simulator.getYear(), simulator.getMonth(), simulator.getTotalMoney(), simulator.getSize(), simulator.getRating(), simulator.getNumCustomers());
             appendLog(logArea, msg);
         });
 
@@ -88,7 +93,10 @@ public class Main extends Application {
             updateYearMonthText(yearMonthButton, r.year, r.month);
             updateTotalMoneyButton(totalMoneyButton, r.totalMoney);
             monthlyEarningsLabel.setText(String.format("Monthly earnings: $%.2f", r.monthlyEarnings));
-            appendLog(logArea, String.format("Advanced to %d-%02d: random change %.2f, earnings +%.2f, rent -%.2f, total %.2f, cumulative earnings %.2f", r.year, r.month, r.delta, r.monthlyEarnings, r.rent, r.totalMoney, r.totalEarnings));
+            customersLabel.setText(String.format("Customers: %d", r.customers));
+            sizeLabel.setText(String.format("Size: %d", r.size));
+            ratingLabel.setText(String.format("Rating: %.2f", r.rating));
+            appendLog(logArea, String.format("Advanced to %d-%02d: customers=%d, size=%d, rating=%.2f, random change %.2f, earnings +%.2f, rent -%.2f, total %.2f, cumulative earnings %.2f", r.year, r.month, r.customers, r.size, r.rating, r.delta, r.monthlyEarnings, r.rent, r.totalMoney, r.totalEarnings));
         });
 
     // menu button that opens a simple context menu
@@ -113,7 +121,7 @@ public class Main extends Application {
     root.setCenter(centralImage);
 
     // TOP bar: left (customize, year/month, metrics) and right (total money + menu)
-    VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton, monthlyEarningsLabel);
+    VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton, monthlyEarningsLabel, customersLabel, sizeLabel, ratingLabel);
     topLeftVBox.setAlignment(Pos.TOP_LEFT);
     topLeftVBox.setPadding(new Insets(8));
 
