@@ -7,14 +7,13 @@ import java.util.Queue;
 import java.util.Random;
 
 public class RestaurantSimulator {
-
-
     // Metrics to track!!
     private int year;
     private int month;
     private double totalMoney;
     private double monthlyEarnings;
     private double totalEarnings;
+    private double monthlySpendings;
     private double rent;
     private int size;
     private double rating; // 0.0 - 5.0, derived from menu quality
@@ -23,11 +22,9 @@ public class RestaurantSimulator {
     private double popularity = 0.5; // 0.0 - 1.0
     // Metric Trackings
     private Queue<Integer> recentCustomers = new LinkedList<>();
-   /* private Queue<Integer> recentRatings;
-    private Queue<Integer> recentEarnings;
-    private Queue<Integer> recentSpendings;*/
-
-
+    private Queue<Double> recentRatings = new LinkedList<>();
+    private Queue<Double> recentSpendings = new LinkedList<>();
+    private Queue<Double> recentEarings = new LinkedList<>();
 
     // employee wage: base pay and computed monthly wage
     private final int baseEmployeePay = 10;
@@ -43,6 +40,7 @@ public class RestaurantSimulator {
         this.rent = rent; // will be overridden by derived rent after size set
         this.monthlyEarnings = 0.0;
         this.totalEarnings = 0.0;
+        this.monthlySpendings = 0.0;
         this.size = 20; // starting capacity is 10 (also starting customers)
         this.rating = 3.0; // neutral default
         // derive rent from size
@@ -157,8 +155,9 @@ public class RestaurantSimulator {
     totalMoney -= this.employeeWage;
 
     totalMoney -= rent; // automatic monthly rent deduction
+    monthlySpendings = this.employeeWage + rent;
 
-    return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, size, size, rating, this.employeeWage);
+    return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, size, size, rating, this.employeeWage, this.monthlySpendings);
     }
 
     // menu management
@@ -201,8 +200,9 @@ public class RestaurantSimulator {
         public final int size;
         public final double rating;
         public final int employeeWage;
+        public final double monthlySpendings;
 
-        public AdvanceResult(int year, int month, double delta, double monthlyEarnings, double rent, double totalMoney, double totalEarnings, int customers, int size, double rating, int employeeWage) {
+        public AdvanceResult(int year, int month, double delta, double monthlyEarnings, double rent, double totalMoney, double totalEarnings, int customers, int size, double rating, int employeeWage, double monthlySpendings) {
             this.year = year;
             this.month = month;
             this.delta = delta;
@@ -214,12 +214,25 @@ public class RestaurantSimulator {
             this.size = size;
             this.rating = rating;
             this.employeeWage = employeeWage;
+            this.monthlySpendings = monthlySpendings;
         }
 
     }
 
-    public Queue<Integer> getUpdatedData() {
+    public Queue<Integer> getCustomerData() {
         return recentCustomers;
+    }
+
+    public Queue<Double> getRatingData(){
+        return recentRatings;
+    }
+
+    public Queue<Double> getRecentEarnings(){
+        return recentEarings;
+    }
+
+    public Queue<Double> getRecentSpendings(){
+        return recentSpendings;
     }
 
     public void updateData() {
@@ -229,6 +242,23 @@ public class RestaurantSimulator {
             recentCustomers.remove();
             recentCustomers.add(size);
         }
-        
+        if(recentRatings.size() < 12){
+            recentRatings.add(rating);
+        }else{
+            recentRatings.remove();
+            recentRatings.add(rating);
+        }
+        if(recentEarings.size() < 12){
+            recentEarings.add(monthlyEarnings);
+        }else{
+            recentEarings.remove();
+            recentEarings.add(monthlyEarnings);
+        }
+        if(recentSpendings.size() < 12){
+            recentSpendings.add(monthlySpendings);
+        }else{
+            recentSpendings.remove();
+            recentSpendings.add(monthlySpendings);
+        }
     }
 }
