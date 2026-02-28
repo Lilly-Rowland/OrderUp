@@ -3,3 +3,6 @@ createdFiles.lst
 inputFiles.lst
 RestaurantSimulator.class
 RestaurantSimulator$AdvanceResult.class
+target/*.class
+*.lst
+config.properties

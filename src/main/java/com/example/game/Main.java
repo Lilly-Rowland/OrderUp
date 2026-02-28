@@ -21,12 +21,16 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Initialize backend components
-        RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
-        Metrics metrics = new Metrics();
-        MenuManager menuManager = new MenuManager();
+    RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
+    // Metrics UI helper is available via Metrics.getMetrics() when needed
+    // a VBox that will show the current menu items in the main UI
+    VBox menuDisplay = new VBox(4);
+    menuDisplay.setPadding(new Insets(6));
+    menuDisplay.setPrefWidth(200);
+    MenuManager menuManager = new MenuManager(simulator, menuDisplay);
 
         // CREATE MAIN WINDOW
-        primaryStage.setTitle("Simple 2D Game Framework");
+        primaryStage.setTitle("Order Up");
 
         // Create restaurant image
         Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
@@ -80,7 +84,7 @@ public class Main extends Application {
             popup.setTitle("Customize Menu (placeholder)");
             TextArea ta = new TextArea("This is a placeholder for customize menu.\nAdd controls here later.");
             ta.setWrapText(true);
-            ta.setEditable(false);
+    HBox topRightHBox = new HBox(8, totalMoneyButton);
             Scene s = new Scene(ta, 300, 200);
             popup.setScene(s);
             popup.showAndWait();
@@ -113,15 +117,15 @@ public class Main extends Application {
             simulator.updateData();
         });
 
-        // Create Menu button
-        Button menuButton = menuManager.createMenuButton();
+    // Create Menu button (opens popup to edit menu)
+    Button menuButton = menuManager.createMenuButton(primaryStage);
 
 
         // Set up scene layout
         BorderPane root = new BorderPane();
         root.setCenter(centralImage);
 
-        VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton, monthlyEarningsLabel, customersLabel, sizeLabel, ratingLabel, upgradeSizeButton);
+    VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton, monthlyEarningsLabel, customersLabel, sizeLabel, ratingLabel, menuDisplay, upgradeSizeButton);
         topLeftVBox.setAlignment(Pos.TOP_LEFT);
         topLeftVBox.setPadding(new Insets(8));
 

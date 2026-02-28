@@ -1,30 +1,123 @@
 package com.example.game;
 
-import javafx.geometry.Side;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
+/**
+ * Simple UI helper to manage a restaurant menu. Opens a popup to add items
+ * (name, price, quality) and updates the simulator. Also updates a provided
+ * VBox in the main UI to list current menu items and prices.
+ */
 public class MenuManager {
 
-	public Button createMenuButton() {
-		Button menuButton = new Button("Menu");
+    private final RestaurantSimulator simulator;
+    private final VBox menuDisplay;
 
-		ContextMenu contextMenu = new ContextMenu();
-		contextMenu.getItems().addAll(
-			new MenuItem("Herbel Tea"),
-			new MenuItem("Lavender Lemonade"),
-			new MenuItem("Spring Roll"),
-			new MenuItem("Stuffed Zucchini Blossoms"),
-			new MenuItem("Sweet Pea Soup"),
-			new MenuItem("The Impossible Garden Burger"),
-			new MenuItem("Wild Foraged Truffle & Mushroom Pappardelle"),
-			new MenuItem("Harvest Flatbread"),
-			new MenuItem("Seasonal Fruit Tart"),
-			new MenuItem("Chocolate Avocado Mousse")
-		);
+    public MenuManager(RestaurantSimulator simulator, VBox menuDisplay) {
+        this.simulator = simulator;
+        this.menuDisplay = menuDisplay;
+        refreshDisplay();
+    }
 
-		menuButton.setOnAction(e -> contextMenu.show(menuButton, Side.BOTTOM, 0, 0));
-		return menuButton;
-	}
+    public Button createMenuButton(Stage owner) {
+        Button menuButton = new Button("Menu");
+        menuButton.setOnAction(e -> openMenuPopup(owner));
+        return menuButton;
+    }
+
+    private void openMenuPopup(Stage owner) {
+        Stage popup = new Stage();
+        popup.initOwner(owner);
+        popup.initModality(Modality.APPLICATION_MODAL);
+        popup.setTitle("Edit Menu");
+
+        VBox root = new VBox(8);
+        root.setPadding(new Insets(10));
+
+    // load menu options from JSON resource
+    List<MenuItem> options = loadOptionsFromJson();
+
+    // feedback label for duplicate-add attempts
+    Label feedback = new Label();
+
+        Button close = new Button("Close");
+        close.setOnAction(ev -> popup.close());
+
+        // show available options as selectable buttons
+        VBox optionsBox = new VBox(6);
+        optionsBox.setPadding(new Insets(6));
+        if (options.isEmpty()) {
+            optionsBox.getChildren().add(new Label("(no options available)"));
+        } else {
+                for (MenuItem opt : options) {
+                Button optBtn = new Button(String.format("%s — $%.2f", opt.name, opt.price));
+                optBtn.setOnAction(ev -> {
+                    // add a copy of the selected option to the simulator menu
+                    MenuItem it = new MenuItem(opt.name, opt.price, opt.quality);
+                    List<MenuItem> m = simulator.getMenu();
+                    boolean exists = false;
+                    for (MenuItem ex : m) {
+                        if (ex.name.equalsIgnoreCase(it.name)) { exists = true; break; }
+                    }
+                    if (exists) {
+                        feedback.setText("Item already in menu: " + it.name);
+                    } else {
+                        m.add(it);
+                        simulator.setMenu(m);
+                        refreshDisplay();
+                        feedback.setText("Added: " + it.name);
+                    }
+                });
+                optionsBox.getChildren().add(optBtn);
+            }
+        }
+
+        ScrollPane optionsScroll = new ScrollPane(optionsBox);
+        optionsScroll.setPrefHeight(150);
+
+    root.getChildren().addAll(new Label("Available menu options:"), optionsScroll, feedback, new Label("Current menu:"), menuDisplay, close);
+
+        Scene s = new Scene(root, 520, 360);
+        popup.setScene(s);
+        popup.showAndWait();
+    }
+
+    private void refreshDisplay() {
+    menuDisplay.getChildren().clear();
+    List<MenuItem> list = simulator.getMenu();
+        if (list.isEmpty()) {
+            menuDisplay.getChildren().add(new Label("(menu empty)"));
+            return;
+        }
+    for (MenuItem it : list) {
+        Label l = new Label(String.format("%s — $%.2f", it.name, it.price));
+            menuDisplay.getChildren().add(l);
+        }
+    }
+
+    private List<MenuItem> loadOptionsFromJson() {
+        try (InputStreamReader r = new InputStreamReader(getClass().getResourceAsStream("/menu_options.json"))) {
+            Gson g = new Gson();
+            Type t = new TypeToken<List<MenuItem>>(){}.getType();
+            List<MenuItem> list = g.fromJson(r, t);
+            return list != null ? list : new ArrayList<>();
+        } catch (Exception ex) {
+            // resource missing or parse error
+            return new ArrayList<>();
+        }
+    }
 }

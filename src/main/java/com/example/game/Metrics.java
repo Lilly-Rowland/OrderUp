@@ -11,7 +11,6 @@ import javafx.scene.layout.VBox;
 
 public class Metrics {
   public Metrics(){
-
   }
 
   public static Scene getMetrics(Queue<Integer> recentCustomers){
