@@ -15,6 +15,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import java.util.Queue;
 
 public class Main extends Application {
     @Override
@@ -32,11 +33,6 @@ public class Main extends Application {
         ImageView centralImage = new ImageView(image);
         centralImage.setPreserveRatio(true);
         centralImage.setFitWidth(200);
-
-    // buttons and state (directional placeholders removed)
-
-    // backend simulator handles state and calculations
-    // RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
 
         // Log area on center-right
         // Create Log Area
@@ -57,18 +53,18 @@ public class Main extends Application {
         Label customersLabel = new Label(String.format("Customers: %d", simulator.getNumCustomers()));
         Label sizeLabel = new Label(String.format("Size: %d", simulator.getSize()));
         Label ratingLabel = new Label(String.format("Rating: %.2f", simulator.getRating()));
-    // Total money button (top-right) - moved up so upgrade button can reference it
-    Button totalMoneyButton = new Button();
-    totalMoneyButton.setFocusTraversable(false);
-    updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
-
-    Button upgradeSizeButton = new Button("Upgrade size");
-    upgradeSizeButton.setOnAction(e -> {
-        RestaurantSimulator.UpgradeResult ur = simulator.upgradeSize();
+        // Total money button (top-right) - moved up so upgrade button can reference it
+        Button totalMoneyButton = new Button();
+        totalMoneyButton.setFocusTraversable(false);
         updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
-        sizeLabel.setText(String.format("Size: %d", simulator.getSize()));
-        appendLog(logArea, String.format("Upgrade attempt: success=%b cost=%.2f result=%s", ur.success, ur.cost, ur.message));
-    });
+
+        Button upgradeSizeButton = new Button("Upgrade size");
+        upgradeSizeButton.setOnAction(e -> {
+            RestaurantSimulator.UpgradeResult ur = simulator.upgradeSize();
+            updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
+            sizeLabel.setText(String.format("Size: %d", simulator.getSize()));
+            appendLog(logArea, String.format("Upgrade attempt: success=%b cost=%.2f result=%s", ur.success, ur.cost, ur.message));
+        });
 
         // Total money button (top-right)
         // Button totalMoneyButton = new Button();
@@ -93,16 +89,12 @@ public class Main extends Application {
         // Create Metrics Button
         Button metricsButton = new Button("metrics");
         metricsButton.setOnAction(e -> {
-            Scene metricsScene = Metrics.getMetrics();
+            Queue<Integer> recentCustomers = simulator.getUpdatedData();
+            Scene metricsScene = Metrics.getMetrics(recentCustomers);
             Stage popup = new Stage();
             popup.initOwner(primaryStage);
             popup.initModality(Modality.APPLICATION_MODAL);
             popup.setTitle("METRICS");
-            String text = String.format("Year=%d Month=%02d\nTotal=%.2f\nSize=%d Rating=%.2f\nCustomers=%d", simulator.getYear(), simulator.getMonth(), simulator.getTotalMoney(), simulator.getSize(), simulator.getRating(), simulator.getNumCustomers());
-            Label msg = new Label(text);
-            VBox box = new VBox(10, msg);
-            box.setPadding(new Insets(10));
-            Scene ps = new Scene(box, 320, 100);
             popup.setScene(metricsScene);
             popup.showAndWait();
         });
@@ -118,6 +110,7 @@ public class Main extends Application {
             sizeLabel.setText(String.format("Size: %d", r.size));
             ratingLabel.setText(String.format("Rating: %.2f", r.rating));
             appendLog(logArea, String.format("Advanced to %d-%02d: customers=%d, size=%d, rating=%.2f, random change %.2f, earnings +%.2f, rent -%.2f, total %.2f, cumulative earnings %.2f", r.year, r.month, r.customers, r.size, r.rating, r.delta, r.monthlyEarnings, r.rent, r.totalMoney, r.totalEarnings));
+            simulator.updateData();
         });
 
         // Create Menu button
@@ -204,7 +197,7 @@ public class Main extends Application {
         }
         logArea.positionCaret(logArea.getText().length());
     }
-
+    
     public static void main(String[] args) {
         launch(args);
     }

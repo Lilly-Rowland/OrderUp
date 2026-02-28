@@ -1,7 +1,9 @@
 package com.example.game;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 
 public class RestaurantSimulator {
@@ -17,18 +19,25 @@ public class RestaurantSimulator {
     private final List<MenuItem> menu = new ArrayList<>();
     private final Random rand = new Random();
     private double popularity = 0.5; // 0.0 - 1.0
+    // Metric Trackings
+    private Queue<Integer> recentCustomers = new LinkedList<>();
+   /* private Queue<Integer> recentRatings;
+    private Queue<Integer> recentEarnings;
+    private Queue<Integer> recentSpendings;*/
+
+
 
     public RestaurantSimulator(int startYear, int startMonth, double startTotalMoney, double rent) {
         this.year = startYear;
         this.month = startMonth;
         this.totalMoney = startTotalMoney;
-    this.rent = rent; // will be overridden by derived rent after size set
-    this.monthlyEarnings = 0.0;
-    this.totalEarnings = 0.0;
-    this.size = 20; // starting capacity is 10 (also starting customers)
+        this.rent = rent; // will be overridden by derived rent after size set
+        this.monthlyEarnings = 0.0;
+        this.totalEarnings = 0.0;
+        this.size = 20; // starting capacity is 10 (also starting customers)
         this.rating = 3.0; // neutral default
-    // derive rent from size
-    this.rent = this.size * 50.0;
+        // derive rent from size
+        this.rent = this.size * 50.0;
     }
 
     public enum SizeLevel {
@@ -188,5 +197,19 @@ public class RestaurantSimulator {
             this.rating = rating;
         }
 
+    }
+
+    public Queue<Integer> getUpdatedData() {
+        return recentCustomers;
+    }
+
+    public void updateData() {
+        if(recentCustomers.size() < 12){
+            recentCustomers.add(size);
+        }else{
+            recentCustomers.remove();
+            recentCustomers.add(size);
+        }
+        
     }
 }
