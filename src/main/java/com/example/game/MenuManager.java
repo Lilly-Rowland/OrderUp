@@ -9,10 +9,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -105,8 +107,23 @@ public class MenuManager {
         }
     for (MenuItem it : list) {
         Label l = new Label(String.format("%s — $%.2f", it.name, it.price));
-            menuDisplay.getChildren().add(l);
-        }
+        Button remove = new Button("Remove");
+        remove.setOnAction(ev -> {
+            List<MenuItem> m = simulator.getMenu();
+            MenuItem toRemove = null;
+            for (MenuItem mi : m) {
+                if (mi.name.equalsIgnoreCase(it.name)) { toRemove = mi; break; }
+            }
+            if (toRemove != null) {
+                m.remove(toRemove);
+                simulator.setMenu(m);
+                refreshDisplay();
+            }
+        });
+        HBox row = new HBox(8, l, remove);
+        row.setAlignment(Pos.CENTER_LEFT);
+        menuDisplay.getChildren().add(row);
+    }
     }
 
     private List<MenuItem> loadOptionsFromJson() {
