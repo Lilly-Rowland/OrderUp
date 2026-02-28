@@ -24,7 +24,7 @@
             <artifactId>javafx-graphics</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-
+        <!-- Setup Gemini -->
         <!-- Google Cloud Java SDK (For Gemini)-->
         <dependency>
             <groupId>com.google.genai</groupId>

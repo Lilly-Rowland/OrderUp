@@ -3,5 +3,5 @@ createdFiles.lst
 inputFiles.lst
 RestaurantSimulator.class
 RestaurantSimulator$AdvanceResult.class
-*.class
+target/*.class
 *.lst
