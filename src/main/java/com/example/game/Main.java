@@ -93,8 +93,9 @@ public class Main extends Application {
         // Create Metrics Button
         Button metricsButton = new Button("metrics");
         metricsButton.setOnAction(e -> {
-            Queue<Integer> recentCustomers = simulator.getUpdatedData();
-            Scene metricsScene = Metrics.getMetrics(recentCustomers);
+            Queue<Integer> recentCustomers = simulator.getCustomerData();
+            Queue<Double> recentRatings = simulator.getRatingData();
+            Scene metricsScene = Metrics.getMetrics(recentCustomers, recentRatings);
             Stage popup = new Stage();
             popup.initOwner(primaryStage);
             popup.initModality(Modality.APPLICATION_MODAL);

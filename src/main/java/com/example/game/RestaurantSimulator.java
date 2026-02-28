@@ -23,6 +23,7 @@ public class RestaurantSimulator {
     private double popularity = 0.5; // 0.0 - 1.0
     // Metric Trackings
     private Queue<Integer> recentCustomers = new LinkedList<>();
+    private Queue<Double> recentRatings = new LinkedList<>();
    /* private Queue<Integer> recentRatings;
     private Queue<Integer> recentEarnings;
     private Queue<Integer> recentSpendings;*/
@@ -218,8 +219,12 @@ public class RestaurantSimulator {
 
     }
 
-    public Queue<Integer> getUpdatedData() {
+    public Queue<Integer> getCustomerData() {
         return recentCustomers;
+    }
+
+    public Queue<Double> getRatingData(){
+        return recentRatings;
     }
 
     public void updateData() {
@@ -229,6 +234,13 @@ public class RestaurantSimulator {
             recentCustomers.remove();
             recentCustomers.add(size);
         }
+        if(recentRatings.size() < 12){
+            recentRatings.add(rating);
+        }else{
+            recentRatings.remove();
+            recentRatings.add(rating);
+        }
+        
         
     }
 }
