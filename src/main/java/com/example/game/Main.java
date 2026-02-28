@@ -22,13 +22,14 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+    //RestaurantSimulator simulator = new RestaurantSimulator();
 
     @Override
     public void start(Stage primaryStage) {
     primaryStage.setTitle("Simple 2D Game Framework");
 
         // central image (placeholder) - replace URL with your own resource if needed
-        Image image = new Image(getClass().getResource("/images/restaraunt_v1.png").toExternalForm());
+        Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
         ImageView centralImage = new ImageView(image);
         
         centralImage.setPreserveRatio(true);
@@ -90,6 +91,7 @@ public class Main extends Application {
         // Advance month button (bottom-right)
         Button advanceMonth = new Button("advance month");
         advanceMonth.setOnAction(e -> {
+            //simulator.incrementMonth();
             // advance month and update year/month button
             month[0]++;
             if (month[0] > 12) {
