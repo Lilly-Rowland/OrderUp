@@ -28,7 +28,9 @@ public class Main extends Application {
     primaryStage.setTitle("Simple 2D Game Framework");
 
         // central image (placeholder) - replace URL with your own resource if needed
-        ImageView centralImage = new ImageView(new Image("https://via.placeholder.com/200"));
+        Image image = new Image(getClass().getResource("/images/restaraunt_v1.png").toExternalForm());
+        ImageView centralImage = new ImageView(image);
+        
         centralImage.setPreserveRatio(true);
         centralImage.setFitWidth(200);
 
