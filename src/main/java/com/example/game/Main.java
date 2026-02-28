@@ -3,12 +3,9 @@ package com.example.game;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -99,22 +96,8 @@ public class Main extends Application {
             appendLog(logArea, String.format("Advanced to %d-%02d: random change %.2f, earnings +%.2f, rent -%.2f, total %.2f, cumulative earnings %.2f", r.year, r.month, r.delta, r.monthlyEarnings, r.rent, r.totalMoney, r.totalEarnings));
         });
 
-    // menu button that opens a simple context menu
-    Button menuButton = new Button("Menu");
-    ContextMenu contextMenu = new ContextMenu();
-    MenuItem item1 = new MenuItem("Herbel Tea");
-    MenuItem item2 = new MenuItem("Lavender Lemonade");
-    MenuItem item3 = new MenuItem("Spring Roll");
-    MenuItem item4 = new MenuItem("Stuffed Zucchini Blossoms");
-    MenuItem item5 = new MenuItem("Sweet Pea Soup");
-    MenuItem item6 = new MenuItem("The Impossible Garden Burger");
-    MenuItem item7 = new MenuItem("Wild Foraged Truffle & Mushroom Pappardelle");
-    MenuItem item8 = new MenuItem("Harvest Flatbread");
-    MenuItem item9 = new MenuItem("Seasonal Fruit Tart");
-    MenuItem item10 = new MenuItem("Chocolate Avocado Mousse");
-    
-    contextMenu.getItems().addAll(item1, item2, item3, item4, item5, item6, item7, item8, item9, item10);
-    menuButton.setOnAction(e -> contextMenu.show(menuButton, Side.BOTTOM, 0, 0));
+    MenuManager menuManager = new MenuManager();
+    Button menuButton = menuManager.createMenuButton();
 
     // place menu button in top-right corner via BorderPane
     BorderPane root = new BorderPane();
