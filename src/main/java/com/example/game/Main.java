@@ -32,7 +32,6 @@ public class Main extends Application {
 
     // backend simulator handles state and calculations
     RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
-    Metrics metrics = new Metrics();
 
         // Log area on center-right
         TextArea logArea = new TextArea();
@@ -44,6 +43,7 @@ public class Main extends Application {
     // Year & Month button (top-left)
     Button yearMonthButton = new Button();
     yearMonthButton.setFocusTraversable(false);
+    
     // set initial text
     updateYearMonthText(yearMonthButton, simulator.getYear(), simulator.getMonth());
 
@@ -54,6 +54,18 @@ public class Main extends Application {
     // Restaurant size and rating
     Label sizeLabel = new Label(String.format("Size: %d", simulator.getSize()));
     Label ratingLabel = new Label(String.format("Rating: %.2f", simulator.getRating()));
+    // Total money button (top-right) - moved up so upgrade button can reference it
+    Button totalMoneyButton = new Button();
+    totalMoneyButton.setFocusTraversable(false);
+    updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
+
+    Button upgradeSizeButton = new Button("Upgrade size");
+    upgradeSizeButton.setOnAction(e -> {
+        RestaurantSimulator.UpgradeResult ur = simulator.upgradeSize();
+        updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
+        sizeLabel.setText(String.format("Size: %d", simulator.getSize()));
+        appendLog(logArea, String.format("Upgrade attempt: success=%b cost=%.2f result=%s", ur.success, ur.cost, ur.message));
+    });
 
         // Customize placeholder button which opens a popup
         Button customizePlaceholder = new Button("cusotmize menu place hold");
@@ -73,23 +85,20 @@ public class Main extends Application {
         // Metrics button (below placeholder)
         Button metricsButton = new Button("metrics");
         metricsButton.setOnAction(e -> {
-            metrics.getMetrics();
             Stage popup = new Stage();
             popup.initOwner(primaryStage);
             popup.initModality(Modality.APPLICATION_MODAL);
             popup.setTitle("METRICS");
-            Label msg = new Label(String.format("METRICS!!!11"));
+            String text = String.format("Year=%d Month=%02d\nTotal=%.2f\nSize=%d Rating=%.2f\nCustomers=%d", simulator.getYear(), simulator.getMonth(), simulator.getTotalMoney(), simulator.getSize(), simulator.getRating(), simulator.getNumCustomers());
+            Label msg = new Label(text);
             VBox box = new VBox(10, msg);
             box.setPadding(new Insets(10));
-            Scene ps = new Scene(box, 320, 100);
+            Scene ps = new Scene(box, 360, 140);
             popup.setScene(ps);
             popup.showAndWait();
         });
 
-    // Total money button (top-right)
-    Button totalMoneyButton = new Button();
-    totalMoneyButton.setFocusTraversable(false);
-    updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
+    // (totalMoneyButton moved earlier)
 
         // Advance month button (bottom-right)
         Button advanceMonth = new Button("advance month");
@@ -112,7 +121,7 @@ public class Main extends Application {
     root.setCenter(centralImage);
 
     // TOP bar: left (customize, year/month, metrics) and right (total money + menu)
-    VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton, monthlyEarningsLabel, customersLabel, sizeLabel, ratingLabel);
+    VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton, monthlyEarningsLabel, customersLabel, sizeLabel, ratingLabel, upgradeSizeButton);
     topLeftVBox.setAlignment(Pos.TOP_LEFT);
     topLeftVBox.setPadding(new Insets(8));
 
