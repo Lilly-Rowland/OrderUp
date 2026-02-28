@@ -103,11 +103,9 @@ public class Main extends Application {
             VBox box = new VBox(10, msg);
             box.setPadding(new Insets(10));
             Scene ps = new Scene(box, 320, 100);
-            popup.setScene(ps);
+            popup.setScene(metricsScene);
             popup.showAndWait();
         });
-
-    // (totalMoneyButton moved earlier)
 
         // Advance month button (bottom-right)
         Button advanceMonth = new Button("advance month");
