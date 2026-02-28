@@ -7,12 +7,12 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -28,11 +28,18 @@ public class MenuManager {
 
     private final RestaurantSimulator simulator;
     private final VBox menuDisplay;
+    private final ListView<String> menuListView; // optional visual list for main UI
 
-    public MenuManager(RestaurantSimulator simulator, VBox menuDisplay) {
+    public MenuManager(RestaurantSimulator simulator, VBox menuDisplay, ListView<String> menuListView) {
         this.simulator = simulator;
         this.menuDisplay = menuDisplay;
+        this.menuListView = menuListView;
         refreshDisplay();
+    }
+
+    // backward-compatible constructor if only VBox provided
+    public MenuManager(RestaurantSimulator simulator, VBox menuDisplay) {
+        this(simulator, menuDisplay, null);
     }
 
     public Button createMenuButton(Stage owner) {
@@ -99,31 +106,42 @@ public class MenuManager {
     }
 
     private void refreshDisplay() {
-    menuDisplay.getChildren().clear();
-    List<MenuItem> list = simulator.getMenu();
+        menuDisplay.getChildren().clear();
+        List<MenuItem> list = simulator.getMenu();
         if (list.isEmpty()) {
             menuDisplay.getChildren().add(new Label("(menu empty)"));
+            if (menuListView != null) menuListView.getItems().clear();
             return;
         }
-    for (MenuItem it : list) {
-        Label l = new Label(String.format("%s — $%.2f", it.name, it.price));
-        Button remove = new Button("Remove");
-        remove.setOnAction(ev -> {
-            List<MenuItem> m = simulator.getMenu();
-            MenuItem toRemove = null;
-            for (MenuItem mi : m) {
-                if (mi.name.equalsIgnoreCase(it.name)) { toRemove = mi; break; }
+
+        // update VBox display (with remove buttons)
+        for (MenuItem it : list) {
+            Label l = new Label(String.format("%s — $%.2f", it.name, it.price));
+            Button remove = new Button("Remove");
+            remove.setOnAction(ev -> {
+                List<MenuItem> m = simulator.getMenu();
+                MenuItem toRemove = null;
+                for (MenuItem mi : m) {
+                    if (mi.name.equalsIgnoreCase(it.name)) { toRemove = mi; break; }
+                }
+                if (toRemove != null) {
+                    m.remove(toRemove);
+                    simulator.setMenu(m);
+                    refreshDisplay();
+                }
+            });
+            HBox row = new HBox(8, l, remove);
+            row.setAlignment(Pos.CENTER_LEFT);
+            menuDisplay.getChildren().add(row);
+        }
+
+        // update optional ListView for main UI
+        if (menuListView != null) {
+            menuListView.getItems().clear();
+            for (MenuItem it : list) {
+                menuListView.getItems().add(String.format("%s — $%.2f", it.name, it.price));
             }
-            if (toRemove != null) {
-                m.remove(toRemove);
-                simulator.setMenu(m);
-                refreshDisplay();
-            }
-        });
-        HBox row = new HBox(8, l, remove);
-        row.setAlignment(Pos.CENTER_LEFT);
-        menuDisplay.getChildren().add(row);
-    }
+        }
     }
 
     private List<MenuItem> loadOptionsFromJson() {

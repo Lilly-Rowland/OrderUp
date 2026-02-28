@@ -1,5 +1,18 @@
 package com.example.game;
 
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Queue;
+import java.util.Random;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -21,11 +34,32 @@ public class Main extends Application {
         // Initialize backend components
     RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
     // Metrics UI helper is available via Metrics.getMetrics() when needed
-    // a VBox that will show the current menu items in the main UI
+    // a VBox and ListView that will show the current menu items in the main UI
     VBox menuDisplay = new VBox(4);
     menuDisplay.setPadding(new Insets(6));
     menuDisplay.setPrefWidth(200);
-    MenuManager menuManager = new MenuManager(simulator, menuDisplay);
+    javafx.scene.control.ListView<String> menuListView = new javafx.scene.control.ListView<>();
+    menuListView.setPrefWidth(200);
+
+    // load default menu options and pick 3 random items as the starting menu
+    try (InputStreamReader r = new InputStreamReader(Main.class.getResourceAsStream("/menu_options.json"))) {
+        Gson g = new Gson();
+        Type t = new TypeToken<List<MenuItem>>(){}.getType();
+        List<MenuItem> all = g.fromJson(r, t);
+        if (all != null && !all.isEmpty()) {
+            Collections.shuffle(all, new Random());
+            List<MenuItem> chosen = new ArrayList<>();
+            for (int i = 0; i < Math.min(3, all.size()); i++) {
+                MenuItem src = all.get(i);
+                chosen.add(new MenuItem(src.name, src.price, src.quality));
+            }
+            simulator.setMenu(chosen);
+        }
+    } catch (Exception ex) {
+        // ignore - will start with empty menu
+    }
+
+    MenuManager menuManager = new MenuManager(simulator, menuDisplay, menuListView);
 
     // CREATE MAIN WINDOW
     primaryStage.setTitle("Order Up");
@@ -60,6 +94,9 @@ public class Main extends Application {
         Label customersLabel = new Label(String.format("Customers: %d", simulator.getNumCustomers()));
         Label sizeLabel = new Label(String.format("Size: %d", simulator.getSize()));
         Label ratingLabel = new Label(String.format("Rating: %.2f", simulator.getRating()));
+        // make rating more visible in the left column
+        ratingLabel.setStyle("-fx-font-size:14px; -fx-font-weight:bold; -fx-text-fill:#333;");
+        ratingLabel.setPadding(new Insets(4,0,4,0));
     
             Button totalMoneyButton = new Button();
             totalMoneyButton.setFocusTraversable(false);
@@ -73,8 +110,16 @@ public class Main extends Application {
             appendLog(logArea, String.format("Upgrade attempt: success=%b cost=%.2f result=%s", ur.success, ur.cost, ur.message));
         });
 
-        // Customize menu button from MenuManager
-        Button customizeButton = menuManager.createMenuButton(primaryStage);
+        // Customize menu button from MenuManager - wrap so we can refresh UI after popup closes
+        Button rawMenuBtn = menuManager.createMenuButton(primaryStage);
+        rawMenuBtn.setStyle(BUTTON_STYLE);
+        Button customizeButton = new Button("Customize Menu");
+        customizeButton.setOnAction(e -> {
+            rawMenuBtn.fire(); // opens popup and blocks until closed
+            // refresh rating after potential menu changes
+            ratingLabel.setText(String.format("Rating: %.2f", simulator.getRating()));
+        });
+        customizeButton.setStyle(BUTTON_STYLE);
 
         // Metrics button (same action as before)
         Button metricsButton = new Button("metrics");
@@ -87,7 +132,7 @@ public class Main extends Application {
             popup.setTitle("METRICS");
             popup.setScene(metricsScene);
             popup.showAndWait();
-        });
+    });
         
         // STATS area
         Label rentLabel = new Label(String.format("Rent: $%.2f", simulator.getRent()));
@@ -103,12 +148,15 @@ public class Main extends Application {
             customersLabel.setText(String.format("Customers: %d", r.customers));
             sizeLabel.setText(String.format("Size: %d", r.size));
             ratingLabel.setText(String.format("Rating: %.2f", r.rating));
-            appendLog(logArea, String.format("Advanced to %d-%02d: customers=%d, size=%d, rating=%.2f, random change %.2f, earnings +%.2f, rent -%.2f, total %.2f, cumulative earnings %.2f", r.year, r.month, r.customers, r.size, r.rating, r.delta, r.monthlyEarnings, r.rent, r.totalMoney, r.totalEarnings));
+            // concise, human-friendly log
+            appendLog(logArea, String.format("%d-%02d ADV: +$%.2f earnings | -$%.2f rent | -$%d wage | total $%.2f", r.year, r.month, r.monthlyEarnings, r.rent, r.employeeWage, r.totalMoney));
+            // update STATS labels
+            rentLabel.setText(String.format("Rent: $%.2f", r.rent));
+            lastSpendingLabel.setText(String.format("Last month wage: $%d | delta: %.2f", r.employeeWage, r.delta));
             simulator.updateData();
         });
 
-    // Create Menu button (opens popup to edit menu)
-    Button menuButton = menuManager.createMenuButton(primaryStage);
+    // Create Menu button (opens popup to edit menu) - handled via customizeButton
 
 
         // Set up scene layout
@@ -120,7 +168,7 @@ public class Main extends Application {
         menuHeader.setUnderline(true);
         menuDisplay.setStyle(MENU_STYLE);
 
-        VBox leftCol = new VBox(10, yearMonthLabel, customizeButton, metricsButton, rentLabel, lastSpendingLabel, upgradeSizeButton, menuHeader, menuDisplay);
+    VBox leftCol = new VBox(10, yearMonthLabel, customizeButton, metricsButton, rentLabel, lastSpendingLabel, ratingLabel, upgradeSizeButton, menuHeader, menuListView);
         leftCol.setAlignment(Pos.TOP_LEFT);
         leftCol.setPadding(new Insets(8));
 
@@ -208,13 +256,16 @@ public class Main extends Application {
         }
     }
 
-    // Log helper
+    // Log helper — prefix with timestamp
     private static void appendLog(TextArea logArea, String line) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss");
+        String ts = LocalDateTime.now().format(dtf);
+        String entry = String.format("[%s] %s", ts, line);
         String prev = logArea.getText();
         if (prev == null || prev.isEmpty()) {
-            logArea.setText(line);
+            logArea.setText(entry);
         } else {
-            logArea.setText(prev + "\n" + line);
+            logArea.setText(prev + "\n" + entry);
         }
         logArea.positionCaret(logArea.getText().length());
     }
