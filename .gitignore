@@ -1,8 +1,10 @@
-Main.class
-createdFiles.lst
-inputFiles.lst
-RestaurantSimulator.class
-RestaurantSimulator$AdvanceResult.class
 *.class
-*.lst
+target/
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+*.env
+.env
 config.properties

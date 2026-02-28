@@ -24,12 +24,6 @@
             <artifactId>javafx-graphics</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-        <!-- Setup Gemini -->
-        <dependency>
-            <groupId>io.github.cdimascio</groupId>
-            <artifactId>java-dotenv</artifactId>
-            <version>6.2.0</version>
-        </dependency>
         <!-- Google Cloud Java SDK (For Gemini)-->
         <dependency>
             <groupId>com.google.genai</groupId>
@@ -46,6 +40,14 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.example.game.Main</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.example.game.GeminiAPIClient</mainClass>
                 </configuration>
             </plugin>
         </plugins>
