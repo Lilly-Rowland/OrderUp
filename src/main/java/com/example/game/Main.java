@@ -1,7 +1,5 @@
 package com.example.game;
 
-import java.util.Random;
-
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -37,13 +35,8 @@ public class Main extends Application {
 
     // buttons and state (directional placeholders removed)
 
-    // Application state: year, month, total money
-    final int[] year = {2023};
-    final int[] month = {1}; // 1-12
-    final double[] totalMoney = {100000.0}; // starts at 100,000
-    final double[] monthlyEarnings = {0.0}; // placeholder monthly earnings
-    final double[] totalEarnings = {0.0}; // cumulative earnings
-        Random rand = new Random();
+    // backend simulator handles state and calculations
+    RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
 
         // Log area on center-right
         TextArea logArea = new TextArea();
@@ -52,14 +45,14 @@ public class Main extends Application {
         logArea.setPrefColumnCount(20);
         logArea.setPrefRowCount(10);
 
-        // Year & Month button (top-left)
-        Button yearMonthButton = new Button();
-        yearMonthButton.setFocusTraversable(false);
-        // set initial text
-        updateYearMonthText(yearMonthButton, year[0], month[0]);
+    // Year & Month button (top-left)
+    Button yearMonthButton = new Button();
+    yearMonthButton.setFocusTraversable(false);
+    // set initial text
+    updateYearMonthText(yearMonthButton, simulator.getYear(), simulator.getMonth());
 
     // Monthly earnings label (placeholder value shown)
-    Label monthlyEarningsLabel = new Label(String.format("Monthly earnings: $%.2f", monthlyEarnings[0]));
+    Label monthlyEarningsLabel = new Label(String.format("Monthly earnings: $%.2f", simulator.getMonthlyEarnings()));
 
         // Customize placeholder button which opens a popup
         Button customizePlaceholder = new Button("cusotmize menu place hold");
@@ -79,40 +72,23 @@ public class Main extends Application {
         // Metrics button (below placeholder)
         Button metricsButton = new Button("metrics");
         metricsButton.setOnAction(e -> {
-            String msg = String.format("Metrics requested - year=%d month=%02d total=%.2f", year[0], month[0], totalMoney[0]);
+            String msg = String.format("Metrics requested - year=%d month=%02d total=%.2f", simulator.getYear(), simulator.getMonth(), simulator.getTotalMoney());
             appendLog(logArea, msg);
         });
 
-        // Total money button (top-right)
-        Button totalMoneyButton = new Button();
-        totalMoneyButton.setFocusTraversable(false);
-        updateTotalMoneyButton(totalMoneyButton, totalMoney[0]);
+    // Total money button (top-right)
+    Button totalMoneyButton = new Button();
+    totalMoneyButton.setFocusTraversable(false);
+    updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
 
         // Advance month button (bottom-right)
         Button advanceMonth = new Button("advance month");
         advanceMonth.setOnAction(e -> {
-            //simulator.incrementMonth();
-            // advance month and update year/month button
-            month[0]++;
-            if (month[0] > 12) {
-                month[0] = 1;
-                year[0]++;
-            }
-            // simulate money change when advancing month (small demo change)
-            double delta = -50 + rand.nextDouble() * 250; // -50..200
-            totalMoney[0] += delta;
-            // placeholder monthly earnings
-            double earnings = Math.round(rand.nextDouble() * 2000.0 * 100.0) / 100.0; // 0.00 - 2000.00
-            monthlyEarnings[0] = earnings;
-            totalEarnings[0] += earnings;
-            totalMoney[0] += earnings;
-            // automatically deduct rent each month
-            double rent = 2500.0;
-            totalMoney[0] -= rent;
-            updateYearMonthText(yearMonthButton, year[0], month[0]);
-            updateTotalMoneyButton(totalMoneyButton, totalMoney[0]);
-            monthlyEarningsLabel.setText(String.format("Monthly earnings: $%.2f", monthlyEarnings[0]));
-            appendLog(logArea, String.format("Advanced to %d-%02d: random change %.2f, earnings +%.2f, rent -%.2f, total %.2f, cumulative earnings %.2f", year[0], month[0], delta, earnings, rent, totalMoney[0], totalEarnings[0]));
+            RestaurantSimulator.AdvanceResult r = simulator.advanceMonth();
+            updateYearMonthText(yearMonthButton, r.year, r.month);
+            updateTotalMoneyButton(totalMoneyButton, r.totalMoney);
+            monthlyEarningsLabel.setText(String.format("Monthly earnings: $%.2f", r.monthlyEarnings));
+            appendLog(logArea, String.format("Advanced to %d-%02d: random change %.2f, earnings +%.2f, rent -%.2f, total %.2f, cumulative earnings %.2f", r.year, r.month, r.delta, r.monthlyEarnings, r.rent, r.totalMoney, r.totalEarnings));
         });
 
     // menu button that opens a simple context menu
@@ -154,7 +130,7 @@ public class Main extends Application {
         // BOTTOM area: left = spening button, right = advance month
         Button spening = new Button("spening");
         spening.setOnAction(e -> {
-            double rent = 800.0; // fixed rent amount
+            double rent = simulator.getRent();
             Stage popup = new Stage();
             popup.initOwner(primaryStage);
             popup.initModality(Modality.APPLICATION_MODAL);
