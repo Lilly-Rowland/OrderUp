@@ -9,6 +9,7 @@ import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
@@ -33,10 +34,12 @@ public class Main extends Application {
 
     // buttons and state (directional placeholders removed)
 
-        // Application state: year, month, total money
-        final int[] year = {2023};
-        final int[] month = {1}; // 1-12
-        final double[] totalMoney = {0.0};
+    // Application state: year, month, total money
+    final int[] year = {2023};
+    final int[] month = {1}; // 1-12
+    final double[] totalMoney = {100000.0}; // starts at 100,000
+    final double[] monthlyEarnings = {0.0}; // placeholder monthly earnings
+    final double[] totalEarnings = {0.0}; // cumulative earnings
         Random rand = new Random();
 
         // Log area on center-right
@@ -51,6 +54,9 @@ public class Main extends Application {
         yearMonthButton.setFocusTraversable(false);
         // set initial text
         updateYearMonthText(yearMonthButton, year[0], month[0]);
+
+    // Monthly earnings label (placeholder value shown)
+    Label monthlyEarningsLabel = new Label(String.format("Monthly earnings: $%.2f", monthlyEarnings[0]));
 
         // Customize placeholder button which opens a popup
         Button customizePlaceholder = new Button("cusotmize menu place hold");
@@ -91,9 +97,18 @@ public class Main extends Application {
             // simulate money change when advancing month (small demo change)
             double delta = -50 + rand.nextDouble() * 250; // -50..200
             totalMoney[0] += delta;
+            // placeholder monthly earnings
+            double earnings = Math.round(rand.nextDouble() * 2000.0 * 100.0) / 100.0; // 0.00 - 2000.00
+            monthlyEarnings[0] = earnings;
+            totalEarnings[0] += earnings;
+            totalMoney[0] += earnings;
+            // automatically deduct rent each month
+            double rent = 2500.0;
+            totalMoney[0] -= rent;
             updateYearMonthText(yearMonthButton, year[0], month[0]);
             updateTotalMoneyButton(totalMoneyButton, totalMoney[0]);
-            appendLog(logArea, String.format("Advanced to %d-%02d, money change %.2f, total %.2f", year[0], month[0], delta, totalMoney[0]));
+            monthlyEarningsLabel.setText(String.format("Monthly earnings: $%.2f", monthlyEarnings[0]));
+            appendLog(logArea, String.format("Advanced to %d-%02d: random change %.2f, earnings +%.2f, rent -%.2f, total %.2f, cumulative earnings %.2f", year[0], month[0], delta, earnings, rent, totalMoney[0], totalEarnings[0]));
         });
 
     // menu button that opens a simple context menu
@@ -110,7 +125,7 @@ public class Main extends Application {
     root.setCenter(centralImage);
 
     // TOP bar: left (customize, year/month, metrics) and right (total money + menu)
-    VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton);
+    VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton, monthlyEarningsLabel);
     topLeftVBox.setAlignment(Pos.TOP_LEFT);
     topLeftVBox.setPadding(new Insets(8));
 
@@ -132,12 +147,29 @@ public class Main extends Application {
     VBox.setVgrow(logArea, Priority.ALWAYS);
     root.setRight(rightVBox);
 
-    // BOTTOM area: place advance month at bottom-right
-    HBox bottomBar = new HBox();
-    bottomBar.setPadding(new Insets(10));
-    bottomBar.setAlignment(Pos.CENTER_RIGHT);
-    bottomBar.getChildren().add(advanceMonth);
-    root.setBottom(bottomBar);
+        // BOTTOM area: left = spening button, right = advance month
+        Button spening = new Button("spening");
+        spening.setOnAction(e -> {
+            double rent = 800.0; // fixed rent amount
+            Stage popup = new Stage();
+            popup.initOwner(primaryStage);
+            popup.initModality(Modality.APPLICATION_MODAL);
+            popup.setTitle("Rent Info");
+            Label msg = new Label(String.format("Rent this month: $%.2f\nRent is automatically deducted when the month advances.", rent));
+            VBox box = new VBox(10, msg);
+            box.setPadding(new Insets(10));
+            Scene ps = new Scene(box, 320, 100);
+            popup.setScene(ps);
+            popup.showAndWait();
+        });
+
+        BorderPane bottomBar = new BorderPane();
+        bottomBar.setLeft(spening);
+        BorderPane.setAlignment(spening, Pos.CENTER_LEFT);
+        bottomBar.setRight(advanceMonth);
+        BorderPane.setAlignment(advanceMonth, Pos.CENTER_RIGHT);
+        bottomBar.setPadding(new Insets(10));
+        root.setBottom(bottomBar);
 
         Scene scene = new Scene(root, 600, 400);
         primaryStage.setScene(scene);
