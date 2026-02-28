@@ -19,43 +19,44 @@ import javafx.stage.Stage;
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
-    primaryStage.setTitle("Simple 2D Game Framework");
+        // Initialize backend components
+        RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
+        Metrics metrics = new Metrics();
+        MenuManager menuManager = new MenuManager();
 
-    // central image (placeholder) - replace URL with your own resource if needed
-    Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
-    ImageView centralImage = new ImageView(image);
-    
-    centralImage.setPreserveRatio(true);
-    centralImage.setFitWidth(200);
+        // CREATE MAIN WINDOW
+        primaryStage.setTitle("Simple 2D Game Framework");
 
-    // buttons and state (directional placeholders removed)
+        // Create restaurant image
+        Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
+        ImageView centralImage = new ImageView(image);
+        centralImage.setPreserveRatio(true);
+        centralImage.setFitWidth(200);
 
-    // backend simulator handles state and calculations
-    RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
-    Metrics metrics = new Metrics();
-
-        // Log area on center-right
+        // Create Log Area
         TextArea logArea = new TextArea();
         logArea.setEditable(false);
         logArea.setWrapText(true);
         logArea.setPrefColumnCount(20);
         logArea.setPrefRowCount(10);
 
-    // Year & Month button (top-left)
-    Button yearMonthButton = new Button();
-    yearMonthButton.setFocusTraversable(false);
-    // set initial text
-    updateYearMonthText(yearMonthButton, simulator.getYear(), simulator.getMonth());
+        // Create calendar component
+        Button yearMonthButton = new Button();
+        yearMonthButton.setFocusTraversable(false);
+        updateYearMonthText(yearMonthButton, simulator.getYear(), simulator.getMonth());
 
-    // Monthly earnings label (placeholder value shown)
-    Label monthlyEarningsLabel = new Label(String.format("Monthly earnings: $%.2f", simulator.getMonthlyEarnings()));
-    // Number of customers (fixed)
-    Label customersLabel = new Label(String.format("Customers: %d", simulator.getNumCustomers()));
-    // Restaurant size and rating
-    Label sizeLabel = new Label(String.format("Size: %d", simulator.getSize()));
-    Label ratingLabel = new Label(String.format("Rating: %.2f", simulator.getRating()));
+        // Create labels for monthly earnings, customers, size, and rating
+        Label monthlyEarningsLabel = new Label(String.format("Monthly earnings: $%.2f", simulator.getMonthlyEarnings()));
+        Label customersLabel = new Label(String.format("Customers: %d", simulator.getNumCustomers()));
+        Label sizeLabel = new Label(String.format("Size: %d", simulator.getSize()));
+        Label ratingLabel = new Label(String.format("Rating: %.2f", simulator.getRating()));
 
-        // Customize placeholder button which opens a popup
+        // Total money button (top-right)
+        Button totalMoneyButton = new Button();
+        totalMoneyButton.setFocusTraversable(false);
+        updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
+
+        // Create Menu button
         Button customizePlaceholder = new Button("cusotmize menu place hold");
         customizePlaceholder.setOnAction(e -> {
             Stage popup = new Stage();
@@ -70,7 +71,7 @@ public class Main extends Application {
             popup.showAndWait();
         });
 
-        // Metrics button (below placeholder)
+        // Create Metrics Button
         Button metricsButton = new Button("metrics");
         metricsButton.setOnAction(e -> {
             metrics.getMetrics();
@@ -86,11 +87,7 @@ public class Main extends Application {
             popup.showAndWait();
         });
 
-    // Total money button (top-right)
-    Button totalMoneyButton = new Button();
-    totalMoneyButton.setFocusTraversable(false);
-    updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
-
+       
         // Advance month button (bottom-right)
         Button advanceMonth = new Button("advance month");
         advanceMonth.setOnAction(e -> {
@@ -104,35 +101,35 @@ public class Main extends Application {
             appendLog(logArea, String.format("Advanced to %d-%02d: customers=%d, size=%d, rating=%.2f, random change %.2f, earnings +%.2f, rent -%.2f, total %.2f, cumulative earnings %.2f", r.year, r.month, r.customers, r.size, r.rating, r.delta, r.monthlyEarnings, r.rent, r.totalMoney, r.totalEarnings));
         });
 
-    MenuManager menuManager = new MenuManager();
-    Button menuButton = menuManager.createMenuButton();
+        // Create Menu button
+        Button menuButton = menuManager.createMenuButton();
 
-    // place menu button in top-right corner via BorderPane
-    BorderPane root = new BorderPane();
-    root.setCenter(centralImage);
 
-    // TOP bar: left (customize, year/month, metrics) and right (total money + menu)
-    VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton, monthlyEarningsLabel, customersLabel, sizeLabel, ratingLabel);
-    topLeftVBox.setAlignment(Pos.TOP_LEFT);
-    topLeftVBox.setPadding(new Insets(8));
+        // Set up scene layout
+        BorderPane root = new BorderPane();
+        root.setCenter(centralImage);
 
-    HBox topRightHBox = new HBox(8, totalMoneyButton, menuButton);
-    topRightHBox.setAlignment(Pos.TOP_RIGHT);
-    topRightHBox.setPadding(new Insets(8));
+        VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton, monthlyEarningsLabel, customersLabel, sizeLabel, ratingLabel);
+        topLeftVBox.setAlignment(Pos.TOP_LEFT);
+        topLeftVBox.setPadding(new Insets(8));
 
-    BorderPane topBar = new BorderPane();
-    topBar.setLeft(topLeftVBox);
-    topBar.setRight(topRightHBox);
-    root.setTop(topBar);
+        HBox topRightHBox = new HBox(8, totalMoneyButton, menuButton);
+        topRightHBox.setAlignment(Pos.TOP_RIGHT);
+        topRightHBox.setPadding(new Insets(8));
 
-    // RIGHT (center-right) area: LOG button and log area
-    Button logButton = new Button("LOG");
-    logButton.setOnAction(e -> appendLog(logArea, "LOG button pressed"));
-    VBox rightVBox = new VBox(6, logButton, logArea);
-    rightVBox.setAlignment(Pos.CENTER_RIGHT);
-    rightVBox.setPadding(new Insets(8));
-    VBox.setVgrow(logArea, Priority.ALWAYS);
-    root.setRight(rightVBox);
+        BorderPane topBar = new BorderPane();
+        topBar.setLeft(topLeftVBox);
+        topBar.setRight(topRightHBox);
+        root.setTop(topBar);
+
+        // RIGHT (center-right) area: LOG button and log area
+        Button logButton = new Button("LOG");
+        logButton.setOnAction(e -> appendLog(logArea, "LOG button pressed"));
+        VBox rightVBox = new VBox(6, logButton, logArea);
+        rightVBox.setAlignment(Pos.CENTER_RIGHT);
+        rightVBox.setPadding(new Insets(8));
+        VBox.setVgrow(logArea, Priority.ALWAYS);
+        root.setRight(rightVBox);
 
         // BOTTOM area: left = spening button, right = advance month
         Button spening = new Button("spening");
@@ -168,7 +165,7 @@ public class Main extends Application {
         btn.setText(String.format("Year %d   Month %02d", year, month));
     }
 
-    // helper to update total money button text and color
+    // Update money
     private static void updateTotalMoneyButton(Button btn, double total) {
         btn.setText(String.format("Total: $%.2f", total));
         if (total >= 0) {
@@ -178,7 +175,7 @@ public class Main extends Application {
         }
     }
 
-    // helper to append a line to the log area
+    // Log helper
     private static void appendLog(TextArea logArea, String line) {
         String prev = logArea.getText();
         if (prev == null || prev.isEmpty()) {
@@ -186,8 +183,11 @@ public class Main extends Application {
         } else {
             logArea.setText(prev + "\n" + line);
         }
-        // scroll to end
         logArea.positionCaret(logArea.getText().length());
+    }
+
+    private static void createButtons(){
+        
     }
 
     public static void main(String[] args) {
