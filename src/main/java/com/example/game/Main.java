@@ -10,12 +10,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import java.util.Queue;
 
 public class Main extends Application {
     @Override
@@ -29,8 +27,13 @@ public class Main extends Application {
     menuDisplay.setPrefWidth(200);
     MenuManager menuManager = new MenuManager(simulator, menuDisplay);
 
-        // CREATE MAIN WINDOW
-        primaryStage.setTitle("Order Up");
+    // CREATE MAIN WINDOW
+    primaryStage.setTitle("Order Up");
+
+    // shared styles
+    final String BUTTON_STYLE = "-fx-background-color: linear-gradient(#ffffff,#e6e6e6); -fx-border-color:#cfcfcf; -fx-border-radius:6; -fx-background-radius:6; -fx-padding:6 10; -fx-font-weight:bold;";
+    final String TOPBAR_STYLE = "-fx-background-color: linear-gradient(#ffffff, #f3f3f3); -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;";
+    final String MENU_STYLE = "-fx-border-color:#ddd; -fx-border-width:1; -fx-background-color:#fbfbfb; -fx-padding:6;";
 
         // Create restaurant image
         Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
@@ -46,21 +49,21 @@ public class Main extends Application {
         logArea.setPrefColumnCount(20);
         logArea.setPrefRowCount(10);
 
-        // Create calendar component
-        Button yearMonthButton = new Button();
-        yearMonthButton.setFocusTraversable(false);
-    
-        updateYearMonthText(yearMonthButton, simulator.getYear(), simulator.getMonth());
+        // LEFT/ CENTER/ RIGHT layout per new design
+        // LEFT: Year/Month label (updates), customize menu (real), metrics button, STATS (rent, last spending)
+        Label yearMonthLabel = new Label();
+        yearMonthLabel.setStyle("-fx-font-weight:bold;");
+        updateYearMonthText(yearMonthLabel, simulator.getYear(), simulator.getMonth());
 
-        // Create labels for monthly earnings, customers, size, and rating
+        // keep existing metric labels for internal updates
         Label monthlyEarningsLabel = new Label(String.format("Monthly earnings: $%.2f", simulator.getMonthlyEarnings()));
         Label customersLabel = new Label(String.format("Customers: %d", simulator.getNumCustomers()));
         Label sizeLabel = new Label(String.format("Size: %d", simulator.getSize()));
         Label ratingLabel = new Label(String.format("Rating: %.2f", simulator.getRating()));
-        // Total money button (top-right) - moved up so upgrade button can reference it
-        Button totalMoneyButton = new Button();
-        totalMoneyButton.setFocusTraversable(false);
-        updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
+    
+            Button totalMoneyButton = new Button();
+            totalMoneyButton.setFocusTraversable(false);
+            updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
 
         Button upgradeSizeButton = new Button("Upgrade size");
         upgradeSizeButton.setOnAction(e -> {
@@ -70,27 +73,10 @@ public class Main extends Application {
             appendLog(logArea, String.format("Upgrade attempt: success=%b cost=%.2f result=%s", ur.success, ur.cost, ur.message));
         });
 
-        // Total money button (top-right)
-        // Button totalMoneyButton = new Button();
-        totalMoneyButton.setFocusTraversable(false);
-        updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
+        // Customize menu button from MenuManager
+        Button customizeButton = menuManager.createMenuButton(primaryStage);
 
-        // Create Menu button
-        Button customizePlaceholder = new Button("cusotmize menu place hold");
-        customizePlaceholder.setOnAction(e -> {
-            Stage popup = new Stage();
-            popup.initOwner(primaryStage);
-            popup.initModality(Modality.APPLICATION_MODAL);
-            popup.setTitle("Customize Menu (placeholder)");
-            TextArea ta = new TextArea("This is a placeholder for customize menu.\nAdd controls here later.");
-            ta.setWrapText(true);
-    HBox topRightHBox = new HBox(8, totalMoneyButton);
-            Scene s = new Scene(ta, 300, 200);
-            popup.setScene(s);
-            popup.showAndWait();
-        });
-
-        // Create Metrics Button
+        // Metrics button (same action as before)
         Button metricsButton = new Button("metrics");
         metricsButton.setOnAction(e -> {
             Queue<Integer> recentCustomers = simulator.getCustomerData();
@@ -105,12 +91,16 @@ public class Main extends Application {
             popup.setScene(metricsScene);
             popup.showAndWait();
         });
+        
+        // STATS area
+        Label rentLabel = new Label(String.format("Rent: $%.2f", simulator.getRent()));
+        Label lastSpendingLabel = new Label(String.format("Last month wage: $%d | delta: %.2f", simulator.getEmployeeWage(), 0.0));
 
-        // Advance month button (bottom-right)
+        // Advance month button (will be placed in right column)
         Button advanceMonth = new Button("advance month");
         advanceMonth.setOnAction(e -> {
             RestaurantSimulator.AdvanceResult r = simulator.advanceMonth();
-            updateYearMonthText(yearMonthButton, r.year, r.month);
+            updateYearMonthText(yearMonthLabel, r.year, r.month);
             updateTotalMoneyButton(totalMoneyButton, r.totalMoney);
             monthlyEarningsLabel.setText(String.format("Monthly earnings: $%.2f", r.monthlyEarnings));
             customersLabel.setText(String.format("Customers: %d", r.customers));
@@ -128,27 +118,54 @@ public class Main extends Application {
         BorderPane root = new BorderPane();
         root.setCenter(centralImage);
 
-    VBox topLeftVBox = new VBox(5, customizePlaceholder, yearMonthButton, metricsButton, monthlyEarningsLabel, customersLabel, sizeLabel, ratingLabel, menuDisplay, upgradeSizeButton);
-        topLeftVBox.setAlignment(Pos.TOP_LEFT);
-        topLeftVBox.setPadding(new Insets(8));
+        Label menuHeader = new Label("Menu");
+        menuHeader.setStyle("-fx-font-weight:bold;");
+        menuHeader.setUnderline(true);
+        menuDisplay.setStyle(MENU_STYLE);
 
-        HBox topRightHBox = new HBox(8, totalMoneyButton, menuButton);
-        topRightHBox.setAlignment(Pos.TOP_RIGHT);
-        topRightHBox.setPadding(new Insets(8));
+        VBox leftCol = new VBox(10, yearMonthLabel, customizeButton, metricsButton, rentLabel, lastSpendingLabel, upgradeSizeButton, menuHeader, menuDisplay);
+        leftCol.setAlignment(Pos.TOP_LEFT);
+        leftCol.setPadding(new Insets(8));
 
-        BorderPane topBar = new BorderPane();
-        topBar.setLeft(topLeftVBox);
-        topBar.setRight(topRightHBox);
-        root.setTop(topBar);
+        Label title = new Label("OrderUp!");
+        title.setStyle("-fx-font-size:24px; -fx-font-weight:bold;");
+        Button howTo = new Button("How to play...");
+        howTo.setOnAction(e -> {
+            Stage popup = new Stage();
+            popup.initOwner(primaryStage);
+            popup.initModality(Modality.APPLICATION_MODAL);
+            popup.setTitle("How to play");
+            TextArea ta = new TextArea("Place your menu, upgrade your restaurant, advance months, and manage finances.\nThis is a simple demo.");
+            ta.setWrapText(true);
+            ta.setEditable(false);
+            VBox box = new VBox(8, ta);
+            box.setPadding(new Insets(10));
+            popup.setScene(new Scene(box, 360, 200));
+            popup.showAndWait();
+        });
+        howTo.setStyle(BUTTON_STYLE);
 
-        // RIGHT (center-right) area: LOG button and log area
+        VBox centerCol = new VBox(10, title, howTo, centralImage);
+        centerCol.setAlignment(Pos.CENTER);
+        centerCol.setPadding(new Insets(8));
+
+        // RIGHT column
+        VBox rightCol = new VBox(8);
+        rightCol.setPadding(new Insets(8));
+        rightCol.setAlignment(Pos.TOP_RIGHT);
+        totalMoneyButton.setStyle(BUTTON_STYLE);
         Button logButton = new Button("LOG");
         logButton.setOnAction(e -> appendLog(logArea, "LOG button pressed"));
-        VBox rightVBox = new VBox(6, logButton, logArea);
-        rightVBox.setAlignment(Pos.CENTER_RIGHT);
-        rightVBox.setPadding(new Insets(8));
+        logButton.setStyle(BUTTON_STYLE);
         VBox.setVgrow(logArea, Priority.ALWAYS);
-        root.setRight(rightVBox);
+        rightCol.getChildren().addAll(totalMoneyButton, logButton, logArea, advanceMonth);
+
+    BorderPane topBar = new BorderPane();
+    topBar.setLeft(leftCol);
+    topBar.setCenter(centerCol);
+    topBar.setRight(rightCol);
+    topBar.setStyle(TOPBAR_STYLE);
+    root.setTop(topBar);
 
         // BOTTOM area: left = spening button, right = advance month
         Button spening = new Button("spening");
@@ -179,9 +196,9 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    // helper to set year/month button text
-    private static void updateYearMonthText(Button btn, int year, int month) {
-        btn.setText(String.format("Year %d   Month %02d", year, month));
+    // helper to set year/month label text
+    private static void updateYearMonthText(Label lbl, int year, int month) {
+        lbl.setText(String.format("Year %d   Month %02d", year, month));
     }
 
     // Update money
