@@ -3,12 +3,9 @@ package com.example.game;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -20,23 +17,22 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    //RestaurantSimulator simulator = new RestaurantSimulator();
-
     @Override
     public void start(Stage primaryStage) {
     primaryStage.setTitle("Simple 2D Game Framework");
 
-        // central image (placeholder) - replace URL with your own resource if needed
-        Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
-        ImageView centralImage = new ImageView(image);
-        
-        centralImage.setPreserveRatio(true);
-        centralImage.setFitWidth(200);
+    // central image (placeholder) - replace URL with your own resource if needed
+    Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
+    ImageView centralImage = new ImageView(image);
+    
+    centralImage.setPreserveRatio(true);
+    centralImage.setFitWidth(200);
 
     // buttons and state (directional placeholders removed)
 
     // backend simulator handles state and calculations
     RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
+    Metrics metrics = new Metrics();
 
         // Log area on center-right
         TextArea logArea = new TextArea();
@@ -77,8 +73,17 @@ public class Main extends Application {
         // Metrics button (below placeholder)
         Button metricsButton = new Button("metrics");
         metricsButton.setOnAction(e -> {
-            String msg = String.format("Metrics requested - year=%d month=%02d total=%.2f size=%d rating=%.2f customers=%d", simulator.getYear(), simulator.getMonth(), simulator.getTotalMoney(), simulator.getSize(), simulator.getRating(), simulator.getNumCustomers());
-            appendLog(logArea, msg);
+            metrics.getMetrics();
+            Stage popup = new Stage();
+            popup.initOwner(primaryStage);
+            popup.initModality(Modality.APPLICATION_MODAL);
+            popup.setTitle("METRICS");
+            Label msg = new Label(String.format("METRICS!!!11"));
+            VBox box = new VBox(10, msg);
+            box.setPadding(new Insets(10));
+            Scene ps = new Scene(box, 320, 100);
+            popup.setScene(ps);
+            popup.showAndWait();
         });
 
     // Total money button (top-right)
@@ -99,22 +104,8 @@ public class Main extends Application {
             appendLog(logArea, String.format("Advanced to %d-%02d: customers=%d, size=%d, rating=%.2f, random change %.2f, earnings +%.2f, rent -%.2f, total %.2f, cumulative earnings %.2f", r.year, r.month, r.customers, r.size, r.rating, r.delta, r.monthlyEarnings, r.rent, r.totalMoney, r.totalEarnings));
         });
 
-    // menu button that opens a simple context menu
-    Button menuButton = new Button("Menu");
-    ContextMenu contextMenu = new ContextMenu();
-    MenuItem item1 = new MenuItem("Herbel Tea");
-    MenuItem item2 = new MenuItem("Lavender Lemonade");
-    MenuItem item3 = new MenuItem("Spring Roll");
-    MenuItem item4 = new MenuItem("Stuffed Zucchini Blossoms");
-    MenuItem item5 = new MenuItem("Sweet Pea Soup");
-    MenuItem item6 = new MenuItem("The Impossible Garden Burger");
-    MenuItem item7 = new MenuItem("Wild Foraged Truffle & Mushroom Pappardelle");
-    MenuItem item8 = new MenuItem("Harvest Flatbread");
-    MenuItem item9 = new MenuItem("Seasonal Fruit Tart");
-    MenuItem item10 = new MenuItem("Chocolate Avocado Mousse");
-    
-    contextMenu.getItems().addAll(item1, item2, item3, item4, item5, item6, item7, item8, item9, item10);
-    menuButton.setOnAction(e -> contextMenu.show(menuButton, Side.BOTTOM, 0, 0));
+    MenuManager menuManager = new MenuManager();
+    Button menuButton = menuManager.createMenuButton();
 
     // place menu button in top-right corner via BorderPane
     BorderPane root = new BorderPane();
