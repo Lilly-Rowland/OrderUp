@@ -20,23 +20,22 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    //RestaurantSimulator simulator = new RestaurantSimulator();
-
     @Override
     public void start(Stage primaryStage) {
     primaryStage.setTitle("Simple 2D Game Framework");
 
-        // central image (placeholder) - replace URL with your own resource if needed
-        Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
-        ImageView centralImage = new ImageView(image);
-        
-        centralImage.setPreserveRatio(true);
-        centralImage.setFitWidth(200);
+    // central image (placeholder) - replace URL with your own resource if needed
+    Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
+    ImageView centralImage = new ImageView(image);
+    
+    centralImage.setPreserveRatio(true);
+    centralImage.setFitWidth(200);
 
     // buttons and state (directional placeholders removed)
 
     // backend simulator handles state and calculations
     RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
+    Metrics metrics = new Metrics();
 
         // Log area on center-right
         TextArea logArea = new TextArea();
@@ -72,8 +71,17 @@ public class Main extends Application {
         // Metrics button (below placeholder)
         Button metricsButton = new Button("metrics");
         metricsButton.setOnAction(e -> {
-            String msg = String.format("Metrics requested - year=%d month=%02d total=%.2f", simulator.getYear(), simulator.getMonth(), simulator.getTotalMoney());
-            appendLog(logArea, msg);
+            metrics.getMetrics();
+            Stage popup = new Stage();
+            popup.initOwner(primaryStage);
+            popup.initModality(Modality.APPLICATION_MODAL);
+            popup.setTitle("METRICS");
+            Label msg = new Label(String.format("METRICS!!!11"));
+            VBox box = new VBox(10, msg);
+            box.setPadding(new Insets(10));
+            Scene ps = new Scene(box, 320, 100);
+            popup.setScene(ps);
+            popup.showAndWait();
         });
 
     // Total money button (top-right)
