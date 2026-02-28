@@ -102,7 +102,7 @@ public class Main extends Application {
             Label msg = new Label(text);
             VBox box = new VBox(10, msg);
             box.setPadding(new Insets(10));
-            Scene ps = new Scene(box, 360, 140);
+            Scene ps = new Scene(box, 320, 100);
             popup.setScene(ps);
             popup.showAndWait();
         });
