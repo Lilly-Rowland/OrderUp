@@ -116,10 +116,18 @@ public class Main extends Application {
     // menu button that opens a simple context menu
     Button menuButton = new Button("Menu");
     ContextMenu contextMenu = new ContextMenu();
-    MenuItem item1 = new MenuItem("Option 1");
-    MenuItem item2 = new MenuItem("Option 2");
-    MenuItem item3 = new MenuItem("Option 3");
-    contextMenu.getItems().addAll(item1, item2, item3);
+    MenuItem item1 = new MenuItem("Herbel Tea");
+    MenuItem item2 = new MenuItem("Lavender Lemonade");
+    MenuItem item3 = new MenuItem("Spring Roll");
+    MenuItem item4 = new MenuItem("Stuffed Zucchini Blossoms");
+    MenuItem item5 = new MenuItem("Sweet Pea Soup");
+    MenuItem item6 = new MenuItem("The Impossible Garden Burger");
+    MenuItem item7 = new MenuItem("Wild Foraged Truffle & Mushroom Pappardelle");
+    MenuItem item8 = new MenuItem("Harvest Flatbread");
+    MenuItem item9 = new MenuItem("Seasonal Fruit Tart");
+    MenuItem item10 = new MenuItem("Chocolate Avocado Mousse");
+    
+    contextMenu.getItems().addAll(item1, item2, item3, item4, item5, item6, item7, item8, item9, item10);
     menuButton.setOnAction(e -> contextMenu.show(menuButton, Side.BOTTOM, 0, 0));
 
     // place menu button in top-right corner via BorderPane
