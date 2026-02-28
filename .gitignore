@@ -5,3 +5,4 @@ RestaurantSimulator.class
 RestaurantSimulator$AdvanceResult.class
 *.class
 *.lst
+config.properties
