@@ -88,11 +88,13 @@ public class RestaurantSimulator {
         if (totalMoney < cost) {
             return new UpgradeResult(false, cost, size, sizeLevel, "Insufficient funds");
         }
+
         totalMoney -= cost;
+        monthlySpendings += cost;
         int prevSize = size;
         size = (int)Math.round(size * 1.5);
-    // recompute rent from new size
-    this.rent = this.size * 50.0;
+        // recompute rent from new size
+        this.rent = this.size * 50.0;
         SizeLevel prev = sizeLevel;
         sizeLevel = sizeLevel.next();
         return new UpgradeResult(true, cost, size, sizeLevel, String.format("%d",sizeLevel.level()));
@@ -173,7 +175,7 @@ public class RestaurantSimulator {
     totalMoney -= this.suppliesSpendings;
 
     totalMoney -= rent; // automatic monthly rent deduction
-    monthlySpendings = this.employeeWage + rent + this.suppliesSpendings;
+    monthlySpendings += this.employeeWage + rent + this.suppliesSpendings;
 
         // record last customers and add to recent history queue
         this.lastCustomers = customers;
@@ -319,5 +321,6 @@ public class RestaurantSimulator {
             recentSpendings.remove();
             recentSpendings.add(monthlySpendings);
         }
+        monthlySpendings = 0.0;
     }
 }

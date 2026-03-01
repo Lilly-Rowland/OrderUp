@@ -120,7 +120,6 @@ public class Main extends Application {
             RestaurantSimulator.UpgradeResult ur = simulator.upgradeSize();
             updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
             sizeLabel.setText(String.format("Size: %d", simulator.getSize()));
-            System.out.println(ur.message.toString());
             if(ur.success){
                 String message = String.format("Upgrade successful! \n Current Level: %s Cost: -$%.2f", ur.message.toString(), ur.cost);
                 appendLog(logArea, message);
