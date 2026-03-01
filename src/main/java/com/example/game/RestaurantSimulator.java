@@ -31,6 +31,8 @@ public class RestaurantSimulator {
     // employee wage: base pay and computed monthly wage
     private final int baseEmployeePay = 10;
     private int employeeWage = baseEmployeePay;
+    // number of employees (affects total wage); doubles on size upgrade
+    private int numEmployees = 5;
 
     // cached average menu quality (0.0 - 1.0)
     private double avgMenuQuality = 0.0;
@@ -90,9 +92,10 @@ public class RestaurantSimulator {
 
         totalMoney -= cost;
         monthlySpendings += cost;
-    size = (int)Math.round(size * 1.5);
-        // recompute rent from new size
-        this.rent = this.size * 50.0;
+        size = size * 2;
+    this.rent = this.rent * 2.0;
+    // double employees when size increases
+    this.numEmployees = Math.max(1, this.numEmployees * 2);
     sizeLevel = sizeLevel.next();
         return new UpgradeResult(true, cost, size, sizeLevel, String.format("%d",sizeLevel.level()));
     }
@@ -145,8 +148,12 @@ public class RestaurantSimulator {
         } else {
             avgPrice = 50.0;
         }
-        // compute employee wage based on average menu quality: wage = basePay * (1 + avgMenuQuality)
-        this.employeeWage = (int)Math.round(baseEmployeePay * (1.0 + this.avgMenuQuality));
+    // normalize effectiveRating from [1..5] to [0..1] then compute per-employee wage: wage = 10 * normalizedRating
+    double normalizedRating = (effectiveRating - 1.0) / 4.0; // maps 1..5 -> 0..1
+    if (normalizedRating < 0.0) normalizedRating = 0.0;
+    if (normalizedRating > 1.0) normalizedRating = 1.0;
+    int perEmployeeWage = 9 + (int)Math.round(10.0 * normalizedRating);
+    this.employeeWage = perEmployeeWage; // store per-employee wage for reference
 
     // determine number of customers this month — influenced by capacity (size) and effective rating
     double t = (effectiveRating - 1.0) / 4.0; // 0..1
@@ -164,8 +171,9 @@ public class RestaurantSimulator {
         totalEarnings += earnings;
         totalMoney += earnings;
 
-    // subtract employee wage (monthly spending)
-    totalMoney -= this.employeeWage;
+    // subtract total employee wages (per-employee wage times number of employees times 6)
+    int totalWage = perEmployeeWage * this.numEmployees * 6;
+    totalMoney -= totalWage;
 
     // supplies/spoilage spendings grow with menu quality (higher quality uses more/better ingredients)
     // increase the baseline and sensitivity so supplies take a larger share of earnings
@@ -174,9 +182,9 @@ public class RestaurantSimulator {
     this.suppliesSpendings = Math.round((earnings * suppliesFactor) * 100.0) / 100.0;
     totalMoney -= this.suppliesSpendings;
 
-    totalMoney -= rent; // automatic monthly rent deduction
-    monthlySpendings += this.employeeWage + rent + this.suppliesSpendings;
-
+    // totalMoney -= rent; // automatic monthly rent deduction
+    monthlySpendings += totalWage + rent + this.suppliesSpendings;
+    totalMoney -= monthlySpendings;
     // record last customers (monthly) for later processing by updateData()
     this.lastCustomers = customers;
 
@@ -187,7 +195,7 @@ public class RestaurantSimulator {
             this.ratingModifier = Math.min(0.0, this.ratingModifier + 0.1);
         }
 
-    return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, customers, size, effectiveRating, this.employeeWage, this.monthlySpendings);
+    return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, customers, size, effectiveRating, perEmployeeWage, this.monthlySpendings);
     }
 
     // menu management
@@ -242,7 +250,10 @@ public class RestaurantSimulator {
         return effective;
     }
 
-    public synchronized int getEmployeeWage() { return employeeWage; }
+    // returns total monthly wage (all employees)
+    public synchronized int getEmployeeWage() { return employeeWage * numEmployees; }
+
+    public synchronized int getNumEmployees() { return numEmployees; }
 
     public int getYear() { return year; }
     public int getMonth() { return month; }

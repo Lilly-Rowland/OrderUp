@@ -48,12 +48,12 @@
     "image": "/images/fire_image.png"
   },
   {
-    "name": "Seasonal Rush",
-  "description": "Tourists arrive for the season. Foot traffic increases steadily for the month.",
+    "name": "Holiday Rush",
+  "description": "Lot's of people are here for the holidays!!! You get a lot of visitors.",
     "incomePercent": 0.15,
     "wealthDelta": 800.0,
     "popularityPercent": 0.05,
-    "image": "/images/season.png"
+    "image": "/images/shopping.png"
   },
   {
     "name": "Equipment Failure",
@@ -61,15 +61,24 @@
     "incomePercent": -0.05,
     "wealthDelta": -2000.0,
     "popularityPercent": -0.02,
-    "image": "/images/equipment.png"
+    "image": "/images/sad_guy.png"
   },
   {
-    "name": "Local Protest",
-    "description": "A protest near the block scares off customers for a while.",
+    "name": "New Store Opens Nearby",
+    "description": "A new shop opens up across the street and steal some customers!",
     "incomePercent": -0.20,
     "wealthDelta": -3000.0,
     "popularityPercent": -0.15,
-    "image": "/images/protest.png"
+    "image": "/images/new_store.png"
+  },
+  {
+    "name": "New Store Opens Nearby. Should you burn it?",
+    "description": "A new shop opens up across the street and steal some customers! Do you want to burn the restaurant down? You will risk people finding out!",
+    "incomePercent": -0.20,
+    "wealthDelta": -500.0,
+    "popularityPercent": -0.5,
+    "image": "/images/new_store.png",
+    "optional":true
   },
   {
     "name": "Ingredients Price Spike",
@@ -77,7 +86,7 @@
     "incomePercent": -0.08,
     "wealthDelta": -1500.0,
     "popularityPercent": -0.01,
-    "image": "/images/price_spike.png"
+    "image": "/images/increase.png"
   }
   ,
   {
@@ -86,7 +95,7 @@
     "incomePercent": -0.10,
     "wealthDelta": -1000.0,
     "popularityPercent": -0.10,
-    "image": ""
+    "image": "/images/toilet.png"
   },
   {
     "name": "Winter storm",
@@ -94,7 +103,7 @@
     "incomePercent": -1.0,
     "wealthDelta": -100.0,
     "popularityPercent": 0.0,
-    "image": ""
+    "image": "/images/storm.png"
   },
   {
     "name": "Dwayne Johnson Eats Here",
@@ -102,7 +111,15 @@
     "incomePercent": 0.0,
     "wealthDelta": 0.0,
     "popularityPercent": 0.90,
-    "image": ""
+    "image": "/images/dwayne.png"
+  },
+  {
+    "name": "Hudson Williams Eats Here",
+    "description": "A surprise visit from Heated Rivalry star Hudson Williams!!!!",
+    "incomePercent": 0.0,
+    "wealthDelta": 0.0,
+    "popularityPercent": 0.90,
+    "image": "/images/hudson.jpg"
   },
   {
     "name": "TikTok Viral",
@@ -110,7 +127,7 @@
     "incomePercent": 0.50,
     "wealthDelta": 2000.0,
     "popularityPercent": 0.40,
-    "image": ""
+    "image": "/images/tiktok.png"
   },
   {
     "name": "Bad Review",
@@ -118,7 +135,7 @@
     "incomePercent": -0.20,
     "wealthDelta": -500.0,
     "popularityPercent": -0.25,
-    "image": ""
+    "image": "/images/critic.png"
   },
   {
     "name": "Spice Challenge",
@@ -211,14 +228,5 @@
     "popularityPercent": 0.40,
     "image": "/images/clock.jpg",
     "optional": true
-  },
-  {
-    "name": "Whispering Menu",
-    "description": "The menu starts whispering recommendations to patrons. Sales shift unpredictably as diners chase suggestions.",
-    "incomePercent": 0.08,
-    "wealthDelta": 0.0,
-    "popularityPercent": 0.22,
-    "image": "",
-    "optional": false
   }
 ]

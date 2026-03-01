@@ -107,6 +107,7 @@ public class Main extends Application {
         Label customersLabel = new Label(String.format("Customers: %d", simulator.getNumCustomers()));
         Label sizeLabel = new Label(String.format("Size: %d", simulator.getSize()));
         Label ratingLabel = new Label(String.format("Rating: %.2f", simulator.getRating()));
+    Label employeesLabel = new Label(String.format("Employees: %d", simulator.getNumEmployees()));
         // make rating more visible in the left column
         ratingLabel.setStyle("-fx-font-size:14px; -fx-font-weight:bold; -fx-text-fill:#333;");
         ratingLabel.setPadding(new Insets(4,0,4,0));
@@ -132,6 +133,7 @@ public class Main extends Application {
             RestaurantSimulator.UpgradeResult ur = simulator.upgradeSize();
             updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
             sizeLabel.setText(String.format("Size: %d", simulator.getSize()));
+                employeesLabel.setText(String.format("Employees: %d", simulator.getNumEmployees()));
             if(ur.success){
                 String message = String.format("Current Level: %s | Cost: -$%.2f", ur.message, ur.cost);
                 appendLog(logArea, "Upgrade successful", message);
@@ -183,7 +185,7 @@ public class Main extends Application {
         
         // STATS area
         Label rentLabel = new Label(String.format("Rent: $%.2f", simulator.getRent()));
-        Label lastSpendingLabel = new Label(String.format("Last month wage: $%d | delta: %.2f", simulator.getEmployeeWage(), 0.0));
+        Label lastSpendingLabel = new Label(String.format("Last month wage: $%d", simulator.getEmployeeWage()/simulator.getNumEmployees(), 0.0));
 
     // Advance month button (will be placed in right column)
     Button advanceMonth = new Button("Advance Month");
@@ -203,9 +205,10 @@ public class Main extends Application {
             customersLabel.setText(String.format("Customers: %d", r.customers));
             sizeLabel.setText(String.format("Size: %d", r.size));
             ratingLabel.setText(String.format("Rating: %.2f", r.rating));
-            printMonthlyLogs(r.year, r.month, r.monthlyEarnings, r.rent, r.employeeWage, simulator.getSuppliesSpendings(), logArea);
+            employeesLabel.setText(String.format("Employees: %d", simulator.getNumEmployees()));
+            printMonthlyLogs(r.year, r.month, r.monthlyEarnings, r.rent, r.employeeWage, simulator.getNumEmployees(), simulator.getSuppliesSpendings(), logArea);
             rentLabel.setText(String.format("Rent: $%.2f", r.rent));
-            lastSpendingLabel.setText(String.format("Last month wage: $%d | delta: %.2f", r.employeeWage, r.delta));
+            lastSpendingLabel.setText(String.format("Last month wage: $%d", r.employeeWage));
             // refresh data queues after finalizing so queues record the updated rating
             simulator.updateData();
             // refresh upgrade affordance after monthly changes
@@ -233,7 +236,7 @@ public class Main extends Application {
         menuHeader.setUnderline(true);
         menuDisplay.setStyle(MENU_STYLE);
 
-    VBox leftCol = new VBox(10, yearMonthLabel, customizeButton, metricsButton, rentLabel, lastSpendingLabel, ratingLabel, upgradeSizeButton, menuHeader, menuListView);
+    VBox leftCol = new VBox(10, yearMonthLabel, customizeButton, metricsButton, rentLabel, lastSpendingLabel, ratingLabel, employeesLabel, upgradeSizeButton, menuHeader, menuListView);
         leftCol.setAlignment(Pos.TOP_LEFT);
         leftCol.setPadding(new Insets(8));
 
@@ -336,9 +339,9 @@ public class Main extends Application {
         logArea.positionCaret(logArea.getText().length());
     }
 
-    private static void printMonthlyLogs(int year, int month, double monthlyEarnings, double rent, int employeeWage, double supplies, TextArea logArea) {
+    private static void printMonthlyLogs(int year, int month, double monthlyEarnings, double rent, int perEmployeeWage, int numEmployees, double supplies, TextArea logArea) {
         String title = String.format("Monthly Summary %d-%02d", year, month);
-        String body = String.format("Paid Rent: -$%.2f\nPaid Employee Wages: -$%d\nPaid Supplies: -$%.2f\nMonthly Earnings: +$%.2f", rent, employeeWage, supplies, monthlyEarnings);
+        String body = String.format("Paid Rent: -$%.2f\nPer-employee Wage: $%d (x %d employees)\nPaid Supplies: -$%.2f\nMonthly Earnings: +$%.2f", rent, perEmployeeWage, numEmployees, supplies, monthlyEarnings);
         appendLog(logArea, title, body);
     }
     
