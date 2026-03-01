@@ -178,7 +178,7 @@ public class RestaurantSimulator {
     // supplies/spoilage spendings grow with menu quality (higher quality uses more/better ingredients)
     // increase the baseline and sensitivity so supplies take a larger share of earnings
     // model as a fraction of earnings: factor = 10% .. 35% depending on avgMenuQuality (0.0 -> 0.10, 1.0 -> 0.35)
-    double suppliesFactor = 0.30 + (this.avgMenuQuality * 0.25);
+    double suppliesFactor = 0.30 + (this.avgMenuQuality * 0.5);
     this.suppliesSpendings = Math.round((earnings * suppliesFactor) * 100.0) / 100.0;
     // totalMoney -= this.suppliesSpendings;
 
@@ -226,7 +226,7 @@ public class RestaurantSimulator {
     // Apply a percentage change to the next monthly income (e.g., 0.1 => +10%) — this is a one-time immediate effect on monthlyEarnings
     public synchronized void applyMonthlyIncomePercentChange(double pct) {
         // scale monthlyEarnings by (1 + pct) for the purposes of the current bookkeeping.
-        this.monthlyEarnings += Math.round((this.monthlyEarnings * (1.0 + pct)) * 100.0) / 100.0;
+        this.monthlyEarnings += Math.round((this.monthlyEarnings * .8*(1.0 + pct)) * 100.0) / 100.0;
         this.totalEarnings = Math.round((this.totalEarnings * (1.0 + pct)) * 100.0) / 100.0;
     }
 

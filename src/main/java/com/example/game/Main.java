@@ -154,10 +154,10 @@ public class Main extends Application {
             if (ur.success) {
                 String message = String.format("Current Level: %s | Cost: -$%.2f", ur.message, ur.cost);
                 appendLog(logArea, "Upgrade successful", message);
-                if (simulator.getLevel() == 3) {
+                if (simulator.getLevel() == 2) {
                     centralImage
                             .setImage(new Image(getClass().getResource("/images/restaurant_v2.png").toExternalForm()));
-                } else if (simulator.getLevel() > 6) {
+                } else if (simulator.getLevel() > 2) {
                     centralImage
                             .setImage(new Image(getClass().getResource("/images/restaurant_v3.png").toExternalForm()));
                 }
