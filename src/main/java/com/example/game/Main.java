@@ -167,7 +167,9 @@ public class Main extends Application {
             sizeLabel.setText(String.format("Size: %d", r.size));
             ratingLabel.setText(String.format("Rating: %.2f", r.rating));
             // concise, human-friendly log
-            appendLog(logArea, String.format("%d-%02d ADV: +$%.2f earnings | -$%.2f rent | -$%d wage | total $%.2f", r.year, r.month, r.monthlyEarnings, r.rent, r.employeeWage, r.totalMoney));
+            //appendLog(logArea, String.format("%d-%02d ADV: +$%.2f earnings | -$%.2f rent | -$%d wage | total $%.2f", r.year, r.month, r.monthlyEarnings, r.rent, r.employeeWage, r.totalMoney));
+            printMonthlyLogs(r.year, r.month, r.monthlyEarnings, r.rent, r.employeeWage, logArea);
+            //appendLog(logArea, String.format(""));
             // update STATS labels
             rentLabel.setText(String.format("Rent: $%.2f", r.rent));
             lastSpendingLabel.setText(String.format("Last month wage: $%d | delta: %.2f", r.employeeWage, r.delta));
@@ -225,12 +227,12 @@ public class Main extends Application {
         VBox.setVgrow(logArea, Priority.ALWAYS);
         rightCol.getChildren().addAll(totalMoneyButton, logButton, logArea, advanceMonth);
 
-    BorderPane topBar = new BorderPane();
-    topBar.setLeft(leftCol);
-    topBar.setCenter(centerCol);
-    topBar.setRight(rightCol);
-    topBar.setStyle(TOPBAR_STYLE);
-    root.setTop(topBar);
+        BorderPane topBar = new BorderPane();
+        topBar.setLeft(leftCol);
+        topBar.setCenter(centerCol);
+        topBar.setRight(rightCol);
+        topBar.setStyle(TOPBAR_STYLE);
+        root.setTop(topBar);
 
         // BOTTOM area: left = spening button, right = advance month
         Button spening = new Button("spening");
@@ -278,9 +280,7 @@ public class Main extends Application {
 
     // Log helper — prefix with timestamp
     private static void appendLog(TextArea logArea, String line) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss");
-        String ts = LocalDateTime.now().format(dtf);
-        String entry = String.format("[%s] %s", ts, line);
+        String entry = String.format("%s", line);
         String prev = logArea.getText();
         if (prev == null || prev.isEmpty()) {
             logArea.setText(entry);
@@ -288,6 +288,13 @@ public class Main extends Application {
             logArea.setText(prev + "\n" + entry);
         }
         logArea.positionCaret(logArea.getText().length());
+    }
+
+    private static void printMonthlyLogs(int year, int month, double monthlyEarnings, double rent, int employeeWage, TextArea logArea) {
+        appendLog(logArea, "------" + String.format("%d-%02d", year, month) + "------");
+        appendLog(logArea, "Paid Rent: -$" + String.format("%.2f", rent));
+        appendLog(logArea, "Paid Employee Wages: -$" + employeeWage);
+        appendLog(logArea, "Monthly Earnings: +$" + String.format("%.2f", monthlyEarnings));
     }
     
     public static void main(String[] args) {
