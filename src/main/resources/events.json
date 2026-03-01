@@ -121,31 +121,22 @@
     "image": ""
   },
   {
-    "name": "Sponsor Catered",
-    "description": "A sponsored event brings extra revenue but also temporary overhead.",
-    "incomePercent": 0.15,
-    "wealthDelta": 1500.0,
-  "popularityPercent": 0.05,
-  "image": "",
-  "optional": true
-  },
-  {
     "name": "Spice Challenge",
   "description": "A spicy food challenge attracts daring customers and creates social buzz at some cost.",
     "incomePercent": 0.10,
     "wealthDelta": -200.0,
   "popularityPercent": 0.8,
-  "image": "",
+  "image": "/images/pepper.png",
   "optional": true
   }
   ,
   {
     "name": "Sponsor Partnership Offer",
-    "description": "A local brand offers a paid partnership: pay for branded nights to boost reputation.",
+    "description": "A local brand (WiC-Donalds) offers a paid partnership: pay for branded nights to boost reputation.",
     "incomePercent": 0.00,
     "wealthDelta": -1200.0,
     "popularityPercent": 0.20,
-    "image": "",
+    "image": "/images/md.png",
     "optional": true
   },
   {
@@ -154,7 +145,7 @@
     "incomePercent": 0.05,
     "wealthDelta": -800.0,
     "popularityPercent": 0.15,
-    "image": "",
+    "image": "/images/jeremy.png",
     "optional": true
   },
   {
@@ -167,12 +158,12 @@
     "optional": true
   },
   {
-    "name": "Local Charity Event",
-  "description": "Donate to a charity gala. It costs money but can significantly improve your reputation.",
+    "name": "Donate to Event for WiC",
+  "description": "Donate to a WiC!!! You will get WiC people to come!!",
     "incomePercent": 0.00,
     "wealthDelta": -2000.0,
     "popularityPercent": 0.35,
-    "image": "",
+    "image": "/images/wic.jpg",
     "optional": true
   }
   ,
@@ -182,7 +173,7 @@
     "incomePercent": 0.40,
     "wealthDelta": 0.0,
     "popularityPercent": 0.45,
-    "image": "",
+    "image": "/images/rocket.png",
     "optional": true
   },
   {
@@ -191,7 +182,7 @@
     "incomePercent": 0.12,
     "wealthDelta": 220.0,
     "popularityPercent": 0.28,
-    "image": "",
+    "image": "/images/soup.jpg",
     "optional": true
   },
   {
@@ -200,7 +191,7 @@
     "incomePercent": 0.05,
     "wealthDelta": -300.0,
     "popularityPercent": -0.18,
-    "image": "",
+    "image": "/images/mole.png",
     "optional": true
   },
   {
