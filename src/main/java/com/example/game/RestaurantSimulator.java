@@ -88,11 +88,13 @@ public class RestaurantSimulator {
         if (totalMoney < cost) {
             return new UpgradeResult(false, cost, size, sizeLevel, "Insufficient funds");
         }
+
         totalMoney -= cost;
+        monthlySpendings += cost;
         int prevSize = size;
         size = (int)Math.round(size * 1.5);
-    // recompute rent from new size
-    this.rent = this.size * 50.0;
+        // recompute rent from new size
+        this.rent = this.size * 50.0;
         SizeLevel prev = sizeLevel;
         sizeLevel = sizeLevel.next();
         return new UpgradeResult(true, cost, size, sizeLevel, String.format("%d",sizeLevel.level()));
@@ -159,7 +161,7 @@ public class RestaurantSimulator {
         // earnings = avgPrice * customers * 3, with small randomness +/-15%
         double variability = 0.85 + rand.nextDouble() * 0.3; // 0.85 - 1.15
         double earnings = Math.round((avgPrice * customers * 3.0 * variability) * 100.0) / 100.0;
-        monthlyEarnings = earnings;
+        monthlyEarnings += earnings;
         totalEarnings += earnings;
         totalMoney += earnings;
 
@@ -173,7 +175,7 @@ public class RestaurantSimulator {
     totalMoney -= this.suppliesSpendings;
 
     totalMoney -= rent; // automatic monthly rent deduction
-    monthlySpendings = this.employeeWage + rent + this.suppliesSpendings;
+    monthlySpendings += this.employeeWage + rent + this.suppliesSpendings;
 
         // record last customers and add to recent history queue
         this.lastCustomers = customers;
@@ -219,7 +221,7 @@ public class RestaurantSimulator {
     // Apply a percentage change to the next monthly income (e.g., 0.1 => +10%) — this is a one-time immediate effect on monthlyEarnings
     public synchronized void applyMonthlyIncomePercentChange(double pct) {
         // scale monthlyEarnings by (1 + pct) for the purposes of the current bookkeeping.
-        this.monthlyEarnings = Math.round((this.monthlyEarnings * (1.0 + pct)) * 100.0) / 100.0;
+        this.monthlyEarnings += Math.round((this.monthlyEarnings * (1.0 + pct)) * 100.0) / 100.0;
         this.totalEarnings = Math.round((this.totalEarnings * (1.0 + pct)) * 100.0) / 100.0;
     }
 
@@ -299,6 +301,14 @@ public class RestaurantSimulator {
         return recentSpendings;
     }
 
+    public void updateEarnings(double earnings){
+        monthlyEarnings += earnings;
+    }
+
+    public void updateSpending(double spending){
+        monthlySpendings += Math.abs(spending);
+    }
+
     public void updateData() {
         if(recentCustomers.size() < 12){
             recentCustomers.add(this.lastCustomers);
@@ -325,5 +335,8 @@ public class RestaurantSimulator {
             recentSpendings.remove();
             recentSpendings.add(monthlySpendings);
         }
+        System.out.println(monthlySpendings);
+        monthlySpendings = 0.0;
+        monthlyEarnings = 0.0;
     }
 }

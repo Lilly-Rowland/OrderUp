@@ -165,5 +165,10 @@ public class EventManager {
                 logArea.positionCaret(logArea.getText().length());
             }
         }
+        if(e.wealthDelta >= 0){
+            sim.updateEarnings(e.wealthDelta);
+        } else {
+            sim.updateSpending(e.wealthDelta);
+        }
     }
 }

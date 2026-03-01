@@ -14,12 +14,7 @@ public class Metrics {
   }
 
   public static Scene getMetrics(Queue<Integer> recentCustomers, Queue<Double> rating, Queue<Double> earnings, Queue<Double> spendings) {
-    System.out.println(recentCustomers);
-    int[] recentMonths = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}; // Placeholder for actual month data
-    //double[] customers = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 70}; // Placeholder for actual customer data
-    //double[] rating = {3, 3, 3, 3, 4, 4, 4, 4, 4.5, 4.5, 4.5, 4.5}; // Placeholder for actual rating data
-   // double[] earnings = {1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000}; // Placeholder for actual earnings data
-   // double[] spendings = {0, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000}; // Placeholder for actual spendings data
+    int[] recentMonths = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 
     LineChart<Number, Number> customersChart = createLineChart(0, "Customers", recentMonths, recentCustomers.stream().mapToDouble(Integer::doubleValue).toArray());
     LineChart<Number, Number> earningsChart = createTwoLineChart(1, "Spendings(Red) and Earnings(Orange)", recentMonths, spendings.stream().mapToDouble(Double::doubleValue).toArray(), earnings.stream().mapToDouble(Double::doubleValue).toArray());
@@ -67,7 +62,6 @@ public class Metrics {
   }
 
   private static LineChart<Number, Number> createLineChart(int graphIndex, String title, int[] recentMonths, double[] yAxisData) {
-    System.out.println(Arrays.toString(yAxisData));
     NumberAxis xAxis = new NumberAxis(1, 12, 1);
     xAxis.setLabel("Time");
 
