@@ -209,7 +209,7 @@
     "incomePercent": -0.25,
     "wealthDelta": 0.0,
     "popularityPercent": 0.05,
-    "image": "",
+    "image": "/images/spoon.png",
     "optional": false
   },
   {
@@ -218,7 +218,7 @@
     "incomePercent": 0.55,
     "wealthDelta": -400.0,
     "popularityPercent": 0.40,
-    "image": "",
+    "image": "/images/clock.jpg",
     "optional": true
   },
   {

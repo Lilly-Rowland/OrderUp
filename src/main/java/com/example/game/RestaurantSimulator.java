@@ -45,10 +45,9 @@ public class RestaurantSimulator {
         this.monthlyEarnings = 0.0;
         this.totalEarnings = 0.0;
         this.monthlySpendings = 0.0;
-        this.size = 20; // starting capacity is 10 (also starting customers)
+    this.size = 20; // starting capacity is 20 (also starting customers)
         this.rating = 3.0; // neutral default
-        // derive rent from size
-        this.rent = this.size * 50.0;
+    // keep rent from constructor parameter (allows starting rent override)
     }
 
     public enum SizeLevel {
@@ -91,12 +90,10 @@ public class RestaurantSimulator {
 
         totalMoney -= cost;
         monthlySpendings += cost;
-        int prevSize = size;
-        size = (int)Math.round(size * 1.5);
+    size = (int)Math.round(size * 1.5);
         // recompute rent from new size
         this.rent = this.size * 50.0;
-        SizeLevel prev = sizeLevel;
-        sizeLevel = sizeLevel.next();
+    sizeLevel = sizeLevel.next();
         return new UpgradeResult(true, cost, size, sizeLevel, String.format("%d",sizeLevel.level()));
     }
 
@@ -171,8 +168,9 @@ public class RestaurantSimulator {
     totalMoney -= this.employeeWage;
 
     // supplies/spoilage spendings grow with menu quality (higher quality uses more/better ingredients)
-    // model as a fraction of earnings: factor = 5% .. 20% depending on avgMenuQuality (0.0 -> 0.05, 1.0 -> 0.20)
-    double suppliesFactor = 0.05 + (this.avgMenuQuality * 0.15);
+    // increase the baseline and sensitivity so supplies take a larger share of earnings
+    // model as a fraction of earnings: factor = 10% .. 35% depending on avgMenuQuality (0.0 -> 0.10, 1.0 -> 0.35)
+    double suppliesFactor = 0.30 + (this.avgMenuQuality * 0.25);
     this.suppliesSpendings = Math.round((earnings * suppliesFactor) * 100.0) / 100.0;
     totalMoney -= this.suppliesSpendings;
 
@@ -252,6 +250,9 @@ public class RestaurantSimulator {
     public double getMonthlyEarnings() { return monthlyEarnings; }
     public double getTotalEarnings() { return totalEarnings; }
     public double getRent() { return rent; }
+
+    // Expose supplies spendings for reporting
+    public double getSuppliesSpendings() { return suppliesSpendings; }
 
     public static class AdvanceResult {
         public final int year;

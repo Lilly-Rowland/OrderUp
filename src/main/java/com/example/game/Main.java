@@ -31,7 +31,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Initialize backend components
-    RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 100000.0, 2500.0);
+        RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 10000.0, 2000.0);
     // Metrics UI helper is available via Metrics.getMetrics() when needed
     // a VBox and ListView that will show the current menu items in the main UI
     VBox menuDisplay = new VBox(4);
@@ -203,7 +203,7 @@ public class Main extends Application {
             customersLabel.setText(String.format("Customers: %d", r.customers));
             sizeLabel.setText(String.format("Size: %d", r.size));
             ratingLabel.setText(String.format("Rating: %.2f", r.rating));
-            printMonthlyLogs(r.year, r.month, r.monthlyEarnings, r.rent, r.employeeWage, logArea);
+            printMonthlyLogs(r.year, r.month, r.monthlyEarnings, r.rent, r.employeeWage, simulator.getSuppliesSpendings(), logArea);
             rentLabel.setText(String.format("Rent: $%.2f", r.rent));
             lastSpendingLabel.setText(String.format("Last month wage: $%d | delta: %.2f", r.employeeWage, r.delta));
             // refresh data queues after finalizing so queues record the updated rating
@@ -336,9 +336,9 @@ public class Main extends Application {
         logArea.positionCaret(logArea.getText().length());
     }
 
-    private static void printMonthlyLogs(int year, int month, double monthlyEarnings, double rent, int employeeWage, TextArea logArea) {
+    private static void printMonthlyLogs(int year, int month, double monthlyEarnings, double rent, int employeeWage, double supplies, TextArea logArea) {
         String title = String.format("Monthly Summary %d-%02d", year, month);
-        String body = String.format("Paid Rent: -$%.2f\nPaid Employee Wages: -$%d\nMonthly Earnings: +$%.2f", rent, employeeWage, monthlyEarnings);
+        String body = String.format("Paid Rent: -$%.2f\nPaid Employee Wages: -$%d\nPaid Supplies: -$%.2f\nMonthly Earnings: +$%.2f", rent, employeeWage, supplies, monthlyEarnings);
         appendLog(logArea, title, body);
     }
     
