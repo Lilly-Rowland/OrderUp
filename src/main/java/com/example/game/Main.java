@@ -322,8 +322,9 @@ public class Main extends Application {
         bottomBar.setPadding(new Insets(10));
         root.setBottom(bottomBar);
 
-        Scene scene = new Scene(root, 1000, 800);
+        Scene scene = new Scene(root, 1500, 800);
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
         primaryStage.show();
     }
 
