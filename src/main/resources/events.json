@@ -5,7 +5,7 @@
     "incomePercent": 0.20,
     "wealthDelta": 1000.0,
     "popularityPercent": 0.10,
-    "image": "/images/restaurant_v1.png"
+    "image": "/images/festival_image.jpg"
   },
   {
     "name": "Critical Health Inspection",
@@ -13,7 +13,7 @@
     "incomePercent": -0.15,
     "wealthDelta": -500.0,
     "popularityPercent": -0.08,
-    "image": "/images/inspection.png"
+    "image": "/images/inspection_image.png"
   },
   {
     "name": "Celebrity Visit",
@@ -21,7 +21,7 @@
     "incomePercent": 0.30,
     "wealthDelta": 5000.0,
     "popularityPercent": 0.25,
-    "image": "/images/celebrity.png"
+    "image": "/images/celebrity_image.png"
   },
   {
     "name": "Supply Shortage",
@@ -29,7 +29,7 @@
     "incomePercent": -0.10,
     "wealthDelta": -1000.0,
     "popularityPercent": -0.05,
-    "image": "/images/supplies.png"
+    "image": "/images/empty_image.png"
   },
   {
     "name": "Viral Rave Review",
@@ -37,7 +37,7 @@
     "incomePercent": 0.25,
     "wealthDelta": 2000.0,
     "popularityPercent": 0.20,
-    "image": "/images/viral.png"
+    "image": "/images/stars_image.png"
   },
   {
     "name": "Kitchen Fire",
@@ -45,7 +45,7 @@
     "incomePercent": -0.50,
     "wealthDelta": -20000.0,
     "popularityPercent": -0.20,
-    "image": "/images/fire.png"
+    "image": "/images/fire_image.png"
   },
   {
     "name": "Seasonal Rush",
