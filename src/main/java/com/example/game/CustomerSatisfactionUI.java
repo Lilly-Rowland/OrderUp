@@ -4,7 +4,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 import javafx.scene.Scene;
-import javafx.scene.Scene.*;
 import javafx.geometry.Insets;
 
 public class CustomerSatisfactionUI {
