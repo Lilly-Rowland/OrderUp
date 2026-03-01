@@ -8,9 +8,10 @@ public class GeminiAPIClient {
         // The Client reads automatically from GOOGLE_API_KEY environment variable
         Client client = new Client();
 
-        GenerateContentResponse response = client.models.generateContent("gemini-3-flash-preview",
-            "Explain how AI works in a few words", null);
+        // Write some restaurant prompts that help with customer satisfaction
+        GenerateContentResponse customer_fb = client.models.generateContent("gemini-3-flash-preview",
+            "Give me a suggestion for improving customer satisfaction in a restaurant", null);
         
-        System.out.println(response.text());
+        System.out.println(customer_fb.text());
     }
 }
