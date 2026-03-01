@@ -32,7 +32,7 @@ public class EventManager {
         public String description;
         public double incomePercent; // multiplicative change to monthly income (fraction)
         public double wealthDelta; // absolute add/subtract to total money
-        public double popularityPercent; // fractional change to popularity (additive factor applied to popularity)
+    public double popularityPercent; // fractional change to rating modifier (additive factor applied to rating)
         public String image; // path like /images/foo.png
     }
 
@@ -73,7 +73,7 @@ public class EventManager {
             sim.addToTotalMoney(e.wealthDelta);
         }
         if (e.popularityPercent != 0.0) {
-            sim.adjustPopularityByPercent(e.popularityPercent);
+            sim.adjustRatingByPercent(e.popularityPercent);
         }
 
         // show popup with name/description/image
@@ -104,7 +104,7 @@ public class EventManager {
         // log event.
         if (logArea != null) {
             String sign = e.wealthDelta >= 0 ? "+" : "";
-            String log = String.format("EVENT: %s — %s | income%% %.2f%% | wealth %s%.2f | popularity%% %.2f%%", e.name, e.description, e.incomePercent * 100.0, sign, e.wealthDelta, e.popularityPercent * 100.0);
+            String log = String.format("EVENT: %s — %s | income%% %.2f%% | wealth %s%.2f | rating%% %.2f%%", e.name, e.description, e.incomePercent * 100.0, sign, e.wealthDelta, e.popularityPercent * 100.0);
             String prev = logArea.getText();
             if (prev == null || prev.isEmpty()) logArea.setText(log);
             else logArea.setText(prev + "\n" + log);

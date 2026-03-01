@@ -20,9 +20,8 @@ public class RestaurantSimulator {
     private double rating; // 0.0 - 5.0, derived from menu quality
     private final List<MenuItem> menu = new ArrayList<>(); //current menu
     private final Random rand = new Random();
-    private double popularity = 0.5; // 0.0 - 1.0
-    // persistent modifier applied by events (fractional, e.g., 0.1 = +10%)
-    private double popularityModifier = 0.0;
+    // persistent modifier applied by events to rating (fractional, e.g., 0.1 = +10%)
+    private double ratingModifier = 0.0;
     // Metric Trackings
     private Queue<Integer> recentCustomers = new LinkedList<>();
     private Queue<Double> recentRatings = new LinkedList<>();
@@ -132,16 +131,12 @@ public class RestaurantSimulator {
         double delta = -50 + rand.nextDouble() * 100; // random expense/income
         totalMoney += delta;
 
-    // compute monthly earnings from menu average price, capacity (size) and popularity
+    // compute monthly earnings from menu average price, capacity (size) and effective rating
     recomputeRatingFromMenu(); // rating still derived from menu quality
-    // popularity is derived linearly from rating: rating=1 -> 0.1, rating=5 -> 1.0
-    double basePopularity = 0.1 + (rating - 1.0) * (0.9 / 4.0);
-    if (basePopularity < 0.1) basePopularity = 0.1;
-    if (basePopularity > 1.0) basePopularity = 1.0;
-    // apply persistent event modifier
-    popularity = basePopularity * (1.0 + popularityModifier);
-    if (popularity < 0.0) popularity = 0.0;
-    if (popularity > 1.0) popularity = 1.0;
+    // effective rating includes persistent modifier from events
+    double effectiveRating = rating * (1.0 + ratingModifier);
+    if (effectiveRating < 1.0) effectiveRating = 1.0;
+    if (effectiveRating > 5.0) effectiveRating = 5.0;
         // compute average price from the current menu; fallback to 50.0 when menu is empty
         double avgPrice;
         if (!menu.isEmpty()) {
@@ -154,10 +149,10 @@ public class RestaurantSimulator {
         // compute employee wage based on average menu quality: wage = basePay * (1 + avgMenuQuality)
         this.employeeWage = (int)Math.round(baseEmployeePay * (1.0 + this.avgMenuQuality));
 
-        // determine number of customers this month — influenced by capacity (size) and menu quality/popularity
-        // demandFactor mapped from average menu quality: 0.0 -> 0.5, 1.0 -> 1.0 (so quality helps fill capacity)
-        double demandFactor = 0.5 + (this.avgMenuQuality * 0.5); // 0.5 .. 1.0
-        int customers = (int)Math.round(size * demandFactor * popularity);
+    // determine number of customers this month — influenced by capacity (size) and effective rating
+    double t = (effectiveRating - 1.0) / 4.0; // 0..1
+    double demandFactor = 0.1 + t * 0.9; // 0.1 .. 1.0
+    int customers = (int)Math.round(size * demandFactor);
         if (customers < 0) customers = 0;
         if (customers > size) customers = size; // cannot exceed capacity
 
@@ -189,11 +184,11 @@ public class RestaurantSimulator {
             recentCustomers.add(this.lastCustomers);
         }
 
-        // decay persistent popularity modifier towards 0 by 0.1 each month
-        if (this.popularityModifier > 0.0) {
-            this.popularityModifier = Math.max(0.0, this.popularityModifier - 0.1);
-        } else if (this.popularityModifier < 0.0) {
-            this.popularityModifier = Math.min(0.0, this.popularityModifier + 0.1);
+        // decay persistent rating modifier towards 0 by 0.1 each month
+        if (this.ratingModifier > 0.0) {
+            this.ratingModifier = Math.max(0.0, this.ratingModifier - 0.1);
+        } else if (this.ratingModifier < 0.0) {
+            this.ratingModifier = Math.min(0.0, this.ratingModifier + 0.1);
         }
 
         return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, customers, size, rating, this.employeeWage, this.monthlySpendings);
@@ -233,12 +228,12 @@ public class RestaurantSimulator {
         this.totalMoney += delta;
     }
 
-    // Adjust popularity by a fractional percent (e.g., 0.05 -> increase by 5% of current popularity)
-    public synchronized void adjustPopularityByPercent(double pct) {
-    this.popularityModifier += pct;
-    // clamp modifier to reasonable range (-0.9 .. +5.0)
-    if (this.popularityModifier < -0.9) this.popularityModifier = -0.9;
-    if (this.popularityModifier > 5.0) this.popularityModifier = 5.0;
+    // Adjust rating by a fractional percent (e.g., 0.05 -> increase rating by 5%) — persistent modifier
+    public synchronized void adjustRatingByPercent(double pct) {
+        this.ratingModifier += pct;
+        // clamp modifier to reasonable range (-0.9 .. +5.0)
+        if (this.ratingModifier < -0.9) this.ratingModifier = -0.9;
+        if (this.ratingModifier > 5.0) this.ratingModifier = 5.0;
     }
 
     public synchronized double getRating() { return rating; }
