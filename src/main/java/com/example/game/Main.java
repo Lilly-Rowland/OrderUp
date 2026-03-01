@@ -69,10 +69,10 @@ public class Main extends Application {
     final String MENU_STYLE = "-fx-border-color:#ddd; -fx-border-width:1; -fx-background-color:#fbfbfb; -fx-padding:6;";
 
         // Create restaurant image
-        Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
+        Image image = new Image(getClass().getResource("/images/restaurant_v2.png").toExternalForm());
         ImageView centralImage = new ImageView(image);
         centralImage.setPreserveRatio(true);
-        centralImage.setFitWidth(200);
+        centralImage.setFitWidth(500);
 
         // Log area on center-right
         // Create Log Area
