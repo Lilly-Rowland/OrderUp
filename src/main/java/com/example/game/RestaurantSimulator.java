@@ -173,14 +173,14 @@ public class RestaurantSimulator {
 
     // subtract total employee wages (per-employee wage times number of employees times 6)
     int totalWage = perEmployeeWage * this.numEmployees * 6;
-    totalMoney -= totalWage;
+    // totalMoney -= totalWage;
 
     // supplies/spoilage spendings grow with menu quality (higher quality uses more/better ingredients)
     // increase the baseline and sensitivity so supplies take a larger share of earnings
     // model as a fraction of earnings: factor = 10% .. 35% depending on avgMenuQuality (0.0 -> 0.10, 1.0 -> 0.35)
     double suppliesFactor = 0.30 + (this.avgMenuQuality * 0.25);
     this.suppliesSpendings = Math.round((earnings * suppliesFactor) * 100.0) / 100.0;
-    totalMoney -= this.suppliesSpendings;
+    // totalMoney -= this.suppliesSpendings;
 
     // totalMoney -= rent; // automatic monthly rent deduction
     monthlySpendings += totalWage + rent + this.suppliesSpendings;
