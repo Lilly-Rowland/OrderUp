@@ -30,7 +30,10 @@ import javafx.stage.Stage;
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
-        // Initialize backend components
+    primaryStage.setTitle("Order Up!");
+    Image logo = new Image(getClass().getResource("/images/logo.png").toExternalForm());
+    primaryStage.getIcons().add(logo);
+    // Initialize backend components
         RestaurantSimulator simulator = new RestaurantSimulator(1, 1, 10000.0, 2000.0);
     // Metrics UI helper is available via Metrics.getMetrics() when needed
     // a VBox and ListView that will show the current menu items in the main UI
@@ -62,6 +65,9 @@ public class Main extends Application {
     EventManager eventManager = new EventManager();
 
     // CREATE MAIN WINDOW
+    ImageView thisIcon = new ImageView(logo);
+    thisIcon.setPreserveRatio(true);
+    thisIcon.setFitWidth(100);
     primaryStage.setTitle("Order Up");
 
     // shared styles using requested color scheme: #cc0066, #ff5050, #ff6600
@@ -222,7 +228,6 @@ public class Main extends Application {
 
         // Set up scene layout and wallpaper background
         BorderPane root = new BorderPane();
-        root.setCenter(centralImage);
         try {
             Image wallpaper = new Image(getClass().getResource("/images/wallpaper.png").toExternalForm());
             root.setStyle(String.format("-fx-background-image: url('%s'); -fx-background-size: cover; -fx-background-position: center center;", wallpaper.getUrl()));
@@ -258,7 +263,7 @@ public class Main extends Application {
         });
     howTo.setStyle(BUTTON_STYLE + " -fx-background-color: linear-gradient(" + ACCENT1 + ", " + ACCENT2 + ");");
 
-        VBox centerCol = new VBox(10, title, howTo, centralImage);
+        VBox centerCol = new VBox(10, thisIcon, title, howTo, centralImage);
         centerCol.setAlignment(Pos.CENTER);
         centerCol.setPadding(new Insets(8));
 
