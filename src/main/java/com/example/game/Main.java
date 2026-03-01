@@ -85,9 +85,12 @@ public class Main extends Application {
 
         // Create restaurant image
         Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
-        ImageView centralImage = new ImageView(image);
-        centralImage.setPreserveRatio(true);
-        centralImage.setFitWidth(500);
+    ImageView centralImage = new ImageView(image);
+    centralImage.setPreserveRatio(true);
+    // keep the image a bit smaller so the top area can't push the bottom bar off-screen
+    centralImage.setFitWidth(420);
+    // also limit the image height so tall windows won't let the center area grow indefinitely
+    centralImage.setFitHeight(300);
 
     // Log area on center-right
     // Create Log Area (styled for readability)
@@ -95,7 +98,10 @@ public class Main extends Application {
     logArea.setEditable(false);
     logArea.setWrapText(true);
     logArea.setPrefColumnCount(30);
-    logArea.setPrefRowCount(12);
+    
+    // make the log area taller so more entries are visible without immediate scrolling
+    logArea.setPrefRowCount(15);
+    logArea.setPrefHeight(360);
     logArea.setFocusTraversable(false);
     // monospace font and subtle background so wallpaper shows through
     logArea.setStyle("-fx-font-family: 'Menlo', 'Monaco', 'Courier New', monospace; -fx-font-size:12px; -fx-control-inner-background: rgba(255,255,255,0.06); -fx-text-fill: #111; -fx-padding:8;");
@@ -263,24 +269,30 @@ public class Main extends Application {
         });
     howTo.setStyle(BUTTON_STYLE + " -fx-background-color: linear-gradient(" + ACCENT1 + ", " + ACCENT2 + ");");
 
-        VBox centerCol = new VBox(10, thisIcon, title, howTo, centralImage);
-        centerCol.setAlignment(Pos.CENTER);
-        centerCol.setPadding(new Insets(8));
+    VBox centerCol = new VBox(10, thisIcon, title, howTo, centralImage);
+    centerCol.setAlignment(Pos.CENTER);
+    centerCol.setPadding(new Insets(8));
+    // limit the center column's height so the top region cannot grow past the available space
+    centerCol.setMaxHeight(380);
+    centerCol.setPrefHeight(360);
+    VBox.setVgrow(centerCol, Priority.NEVER);
 
     // RIGHT column
         VBox rightCol = new VBox(8);
         rightCol.setPadding(new Insets(8));
         rightCol.setAlignment(Pos.TOP_RIGHT);
     totalMoneyButton.setStyle(BUTTON_STYLE + " -fx-background-color: linear-gradient(" + ACCENT3 + ", derive(" + ACCENT3 + ", -10%));");
-        VBox.setVgrow(logArea, Priority.ALWAYS);
-        rightCol.getChildren().addAll(totalMoneyButton, logArea, advanceMonth);
+    // allow the log area to expand so it's comfortably tall when window space allows
+    VBox.setVgrow(logArea, Priority.ALWAYS);
+    rightCol.getChildren().addAll(totalMoneyButton, logArea);
 
     BorderPane topBar = new BorderPane();
-        topBar.setLeft(leftCol);
-        topBar.setCenter(centerCol);
-        topBar.setRight(rightCol);
-        topBar.setStyle(TOPBAR_STYLE);
-        root.setTop(topBar);
+    topBar.setLeft(leftCol);
+    topBar.setCenter(centerCol);
+    topBar.setRight(rightCol);
+    topBar.setStyle(TOPBAR_STYLE);
+    // place the main composed area in the center so the bottomBar remains visible
+    root.setCenter(topBar);
 
     // BOTTOM area: left = spening button, right = advance month
     Button spening = new Button("Spending Info");
