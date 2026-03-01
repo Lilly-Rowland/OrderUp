@@ -1,5 +1,4 @@
 package com.example.game;
-import java.util.Arrays;
 import java.util.Queue;
 
 import javafx.scene.Scene;
@@ -14,16 +13,17 @@ public class Metrics {
   }
 
   public static Scene getMetrics(Queue<Integer> recentCustomers, Queue<Double> rating, Queue<Double> earnings, Queue<Double> spendings) {
-    System.out.println(recentCustomers);
-    int[] recentMonths = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}; // Placeholder for actual month data
-    //double[] customers = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 70}; // Placeholder for actual customer data
-    //double[] rating = {3, 3, 3, 3, 4, 4, 4, 4, 4.5, 4.5, 4.5, 4.5}; // Placeholder for actual rating data
-   // double[] earnings = {1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000}; // Placeholder for actual earnings data
-   // double[] spendings = {0, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000}; // Placeholder for actual spendings data
+    int[] recentMonths = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 
-    LineChart<Number, Number> customersChart = createLineChart(0, "Customers", recentMonths, recentCustomers.stream().mapToDouble(Integer::doubleValue).toArray());
-    LineChart<Number, Number> earningsChart = createTwoLineChart(1, "Spendings(Red) and Earnings(Orange)", recentMonths, spendings.stream().mapToDouble(Double::doubleValue).toArray(), earnings.stream().mapToDouble(Double::doubleValue).toArray());
-    LineChart<Number, Number> ratingChart = createLineChart(2, "Rating", recentMonths, rating.stream().mapToDouble(Double::doubleValue).toArray());
+  LineChart<Number, Number> customersChart = createLineChart(0, "Customers", recentMonths, recentCustomers.stream().mapToDouble(Integer::doubleValue).toArray());
+  LineChart<Number, Number> earningsChart = createTwoLineChart(1, "Spendings(Red) and Earnings(Orange)", recentMonths, spendings.stream().mapToDouble(Double::doubleValue).toArray(), earnings.stream().mapToDouble(Double::doubleValue).toArray());
+  LineChart<Number, Number> ratingChart = createLineChart(2, "Rating", recentMonths, rating.stream().mapToDouble(Double::doubleValue).toArray());
+
+  // apply color scheme: customers=#cc0066, spendings=#ff5050, earnings=#ff6600, rating=#cc0066
+  applySeriesColor(customersChart, 0, "#cc0066");
+  applySeriesColor(earningsChart, 0, "#ff5050"); // spendings series first
+  applySeriesColor(earningsChart, 1, "#ff6600"); // earnings series second
+  applySeriesColor(ratingChart, 0, "#cc0066");
 
     VBox chartContainer = new VBox(20);
     chartContainer.getChildren().add(customersChart);
@@ -63,11 +63,10 @@ public class Metrics {
     chart.getData().add(series2);
     chart.setLegendVisible(false);
 
-    return chart;
+  return chart;
   }
 
   private static LineChart<Number, Number> createLineChart(int graphIndex, String title, int[] recentMonths, double[] yAxisData) {
-    System.out.println(Arrays.toString(yAxisData));
     NumberAxis xAxis = new NumberAxis(1, 12, 1);
     xAxis.setLabel("Time");
 
@@ -91,5 +90,22 @@ public class Metrics {
     chart.setLegendVisible(false);
 
     return chart;
+  }
+
+  
+  private static void applySeriesColor(LineChart<Number, Number> chart, int seriesIndex, String color) {
+    if (chart.getData().size() > seriesIndex) {
+      XYChart.Series<Number, Number> s = (XYChart.Series<Number, Number>) chart.getData().get(seriesIndex);
+      // apply a style to the series nodes after they are attached to scene graph
+      s.nodeProperty().addListener((obs, oldN, newN) -> {
+        if (newN != null) {
+          newN.setStyle(String.format("-fx-stroke: %s; -fx-stroke-width: 2px;", color));
+        }
+      });
+    
+      if (s.getNode() != null) {
+        s.getNode().setStyle(String.format("-fx-stroke: %s; -fx-stroke-width: 2px;", color));
+      }
+    }
   }
 }

@@ -10,11 +10,14 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -33,6 +36,7 @@ public class EventManager {
         public double incomePercent; // multiplicative change to monthly income (fraction)
         public double wealthDelta; // absolute add/subtract to total money
     public double popularityPercent; // fractional change to rating modifier (additive factor applied to rating)
+    public boolean optional = false; // if true, user can accept/decline the event
         public String image; // path like /images/foo.png
     }
 
@@ -65,50 +69,99 @@ public class EventManager {
     if (roll >= chance) return; // trigger only when roll < chance
 
         EventData e = events.get(rand.nextInt(events.size()));
-        // apply effects
-        if (e.incomePercent != 0.0) {
-            sim.applyMonthlyIncomePercentChange(e.incomePercent);
-        }
-        if (e.wealthDelta != 0.0) {
-            sim.addToTotalMoney(e.wealthDelta);
-        }
-        if (e.popularityPercent != 0.0) {
-            sim.adjustRatingByPercent(e.popularityPercent);
+
+        // For optional events we prompt the user to accept/decline. If accepted, apply effects.
+        boolean applied = true;
+        if (e.optional) {
+            Stage choice = new Stage();
+            choice.initOwner(owner);
+            choice.initModality(Modality.APPLICATION_MODAL);
+            choice.setTitle("Optional Event: " + e.name);
+            Label title = new Label(e.name);
+            title.setStyle("-fx-font-weight:bold; -fx-font-size:14px;");
+            Label desc = new Label(e.description + "\n\nAccept this event? (Decline will skip it)");
+            desc.setWrapText(true);
+            Button yes = new Button("Accept");
+            Button no = new Button("Decline");
+            HBox actions = new HBox(8, yes, no);
+            actions.setAlignment(Pos.CENTER);
+            VBox box = new VBox(8, title, desc, actions);
+            box.setPadding(new Insets(8));
+            if (e.image != null && !e.image.isEmpty()) {
+                try {
+                    Image img = new Image(getClass().getResource(e.image).toExternalForm());
+                    ImageView iv = new ImageView(img);
+                    iv.setFitWidth(240);
+                    iv.setPreserveRatio(true);
+                    box.getChildren().add(iv);
+                } catch (Exception ex) {
+                    // ignore missing image
+                }
+            }
+            Scene scene = new Scene(box, 420, 300);
+            choice.setScene(scene);
+
+            final boolean[] userAccepted = {false};
+            yes.setOnAction(ae -> { userAccepted[0] = true; choice.close(); });
+            no.setOnAction(ae -> { userAccepted[0] = false; choice.close(); });
+
+            choice.showAndWait();
+            applied = userAccepted[0];
         }
 
-        // show popup with name/description/image
-        Stage popup = new Stage();
-        popup.initOwner(owner);
-        popup.initModality(Modality.APPLICATION_MODAL);
-        popup.setTitle("Event: " + e.name);
-        Label title = new Label(e.name);
-        title.setStyle("-fx-font-weight:bold; -fx-font-size:14px;");
-        Label desc = new Label(e.description);
-        desc.setWrapText(true);
-        VBox box = new VBox(8, title, desc);
-        box.setPadding(new Insets(8));
-        if (e.image != null && !e.image.isEmpty()) {
-            try {
-                Image img = new Image(getClass().getResource(e.image).toExternalForm());
-                ImageView iv = new ImageView(img);
-                iv.setFitWidth(240);
-                iv.setPreserveRatio(true);
-                box.getChildren().add(iv);
-            } catch (Exception ex) {
-                // ignore missing image
+        if (applied) {
+            // apply effects
+            if (e.incomePercent != 0.0) {
+                sim.applyMonthlyIncomePercentChange(e.incomePercent);
+            }
+            if (e.wealthDelta != 0.0) {
+                sim.addToTotalMoney(e.wealthDelta);
+            }
+            if (e.popularityPercent != 0.0) {
+                sim.adjustRatingByPercent(e.popularityPercent);
+            }
+
+            // show popup with name/description/image confirming the event
+            Stage popup = new Stage();
+            popup.initOwner(owner);
+            popup.initModality(Modality.APPLICATION_MODAL);
+            popup.setTitle("Event: " + e.name);
+            Label title2 = new Label(e.name);
+            title2.setStyle("-fx-font-weight:bold; -fx-font-size:14px;");
+            Label desc2 = new Label(e.description);
+            desc2.setWrapText(true);
+            VBox box2 = new VBox(8, title2, desc2);
+            box2.setPadding(new Insets(8));
+            if (e.image != null && !e.image.isEmpty()) {
+                try {
+                    Image img = new Image(getClass().getResource(e.image).toExternalForm());
+                    ImageView iv = new ImageView(img);
+                    iv.setFitWidth(240);
+                    iv.setPreserveRatio(true);
+                    box2.getChildren().add(iv);
+                } catch (Exception ex) {
+                    // ignore missing image
+                }
+            }
+            popup.setScene(new Scene(box2, 360, 260));
+            popup.showAndWait();
+
+            // log event using Main.appendLog for nicer formatting
+            if (logArea != null) {
+                String sign = e.wealthDelta >= 0 ? "+" : "";
+                String body = String.format("%s\nIncome%%: %.2f%% | Wealth: %s%.2f | Rating%%: %.2f%%", e.description, e.incomePercent * 100.0, sign, e.wealthDelta, e.popularityPercent * 100.0);
+                Main.appendLog(logArea, "Event: " + e.name, body);
+            }
+        } else {
+            // user declined optional event — log that it was skipped
+            if (logArea != null) {
+                Main.appendLog(logArea, "Event declined", String.format("%s was declined by user.", e.name));
             }
         }
-        popup.setScene(new Scene(box, 360, 260));
-        popup.showAndWait();
-
-        // log event.
-        if (logArea != null) {
-            String sign = e.wealthDelta >= 0 ? "+" : "";
-            String log = String.format("EVENT: %s — %s | income%% %.2f%% | wealth %s%.2f | rating%% %.2f%%", e.name, e.description, e.incomePercent * 100.0, sign, e.wealthDelta, e.popularityPercent * 100.0);
-            String prev = logArea.getText();
-            if (prev == null || prev.isEmpty()) logArea.setText(log);
-            else logArea.setText(prev + "\n" + log);
-            logArea.positionCaret(logArea.getText().length());
+        if(e.wealthDelta >= 0){
+            sim.updateEarnings(e.wealthDelta);
+        } else {
+            sim.updateSpending(e.wealthDelta);
         }
     }
 }
