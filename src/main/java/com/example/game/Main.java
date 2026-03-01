@@ -60,6 +60,7 @@ public class Main extends Application {
     }
 
     MenuManager menuManager = new MenuManager(simulator, menuDisplay, menuListView);
+    EventManager eventManager = new EventManager();
 
     // CREATE MAIN WINDOW
     primaryStage.setTitle("Order Up");
@@ -119,7 +120,14 @@ public class Main extends Application {
             RestaurantSimulator.UpgradeResult ur = simulator.upgradeSize();
             updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
             sizeLabel.setText(String.format("Size: %d", simulator.getSize()));
-            appendLog(logArea, String.format("Upgrade attempt: success=%b cost=%.2f result=%s", ur.success, ur.cost, ur.message));
+            System.out.println(ur.message.toString());
+            if(ur.success){
+                String message = String.format("Upgrade successful! \n Current Level: %s Cost: -$%.2f", ur.message.toString(), ur.cost);
+                appendLog(logArea, message);
+            }else{
+                String message = String.format("Failed to upgrade size. Not enough money.", ur.cost);
+                appendLog(logArea, message);
+            }
             refreshUpgradeButton.run();
         });
         // initial refresh
@@ -166,18 +174,15 @@ public class Main extends Application {
             customersLabel.setText(String.format("Customers: %d", r.customers));
             sizeLabel.setText(String.format("Size: %d", r.size));
             ratingLabel.setText(String.format("Rating: %.2f", r.rating));
-            // concise, human-friendly log
-            appendLog(logArea, String.format("%d-%02d ADV: +$%.2f earnings | -$%.2f rent | -$%d wage | total $%.2f", r.year, r.month, r.monthlyEarnings, r.rent, r.employeeWage, r.totalMoney));
-            // update STATS labels
+            printMonthlyLogs(r.year, r.month, r.monthlyEarnings, r.rent, r.employeeWage, logArea);
             rentLabel.setText(String.format("Rent: $%.2f", r.rent));
             lastSpendingLabel.setText(String.format("Last month wage: $%d | delta: %.2f", r.employeeWage, r.delta));
             simulator.updateData();
             // refresh upgrade affordance after monthly changes
             refreshUpgradeButton.run();
+            // possibly trigger a random event (will show modal popup if one occurs)
+            eventManager.maybeTriggerEvent(primaryStage, simulator, r, logArea);
         });
-
-    // Create Menu button (opens popup to edit menu) - handled via customizeButton
-
 
         // Set up scene layout
         BorderPane root = new BorderPane();
@@ -219,18 +224,15 @@ public class Main extends Application {
         rightCol.setPadding(new Insets(8));
         rightCol.setAlignment(Pos.TOP_RIGHT);
         totalMoneyButton.setStyle(BUTTON_STYLE);
-        Button logButton = new Button("LOG");
-        logButton.setOnAction(e -> appendLog(logArea, "LOG button pressed"));
-        logButton.setStyle(BUTTON_STYLE);
         VBox.setVgrow(logArea, Priority.ALWAYS);
-        rightCol.getChildren().addAll(totalMoneyButton, logButton, logArea, advanceMonth);
+        rightCol.getChildren().addAll(totalMoneyButton, logArea, advanceMonth);
 
-    BorderPane topBar = new BorderPane();
-    topBar.setLeft(leftCol);
-    topBar.setCenter(centerCol);
-    topBar.setRight(rightCol);
-    topBar.setStyle(TOPBAR_STYLE);
-    root.setTop(topBar);
+        BorderPane topBar = new BorderPane();
+        topBar.setLeft(leftCol);
+        topBar.setCenter(centerCol);
+        topBar.setRight(rightCol);
+        topBar.setStyle(TOPBAR_STYLE);
+        root.setTop(topBar);
 
         // BOTTOM area: left = spening button, right = advance month
         Button spening = new Button("spening");
@@ -256,7 +258,7 @@ public class Main extends Application {
         bottomBar.setPadding(new Insets(10));
         root.setBottom(bottomBar);
 
-        Scene scene = new Scene(root, 600, 600);
+        Scene scene = new Scene(root, 1000, 800);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -278,9 +280,7 @@ public class Main extends Application {
 
     // Log helper — prefix with timestamp
     private static void appendLog(TextArea logArea, String line) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss");
-        String ts = LocalDateTime.now().format(dtf);
-        String entry = String.format("[%s] %s", ts, line);
+        String entry = String.format("%s", line);
         String prev = logArea.getText();
         if (prev == null || prev.isEmpty()) {
             logArea.setText(entry);
@@ -288,6 +288,13 @@ public class Main extends Application {
             logArea.setText(prev + "\n" + entry);
         }
         logArea.positionCaret(logArea.getText().length());
+    }
+
+    private static void printMonthlyLogs(int year, int month, double monthlyEarnings, double rent, int employeeWage, TextArea logArea) {
+        appendLog(logArea, "------" + String.format("%d-%02d", year, month) + "------");
+        appendLog(logArea, "Paid Rent: -$" + String.format("%.2f", rent));
+        appendLog(logArea, "Paid Employee Wages: -$" + employeeWage);
+        appendLog(logArea, "Monthly Earnings: +$" + String.format("%.2f", monthlyEarnings));
     }
     
     public static void main(String[] args) {

@@ -20,7 +20,8 @@ public class RestaurantSimulator {
     private double rating; // 0.0 - 5.0, derived from menu quality
     private final List<MenuItem> menu = new ArrayList<>(); //current menu
     private final Random rand = new Random();
-    private double popularity = 0.5; // 0.0 - 1.0
+    // persistent modifier applied by events to rating (fractional, e.g., 0.1 = +10%)
+    private double ratingModifier = 0.0;
     // Metric Trackings
     private Queue<Integer> recentCustomers = new LinkedList<>();
     private Queue<Double> recentRatings = new LinkedList<>();
@@ -94,7 +95,7 @@ public class RestaurantSimulator {
     this.rent = this.size * 50.0;
         SizeLevel prev = sizeLevel;
         sizeLevel = sizeLevel.next();
-        return new UpgradeResult(true, cost, size, sizeLevel, String.format("Upgraded from %s(size=%d) to %s(size=%d)", prev.name(), prevSize, sizeLevel.name(), size));
+        return new UpgradeResult(true, cost, size, sizeLevel, String.format("%d",sizeLevel.level()));
     }
 
     // MenuItem is a top-level class in com.example.game.MenuItem
@@ -130,12 +131,12 @@ public class RestaurantSimulator {
         double delta = -50 + rand.nextDouble() * 100; // random expense/income
         totalMoney += delta;
 
-    // compute monthly earnings from menu average price, capacity (size) and popularity
+    // compute monthly earnings from menu average price, capacity (size) and effective rating
     recomputeRatingFromMenu(); // rating still derived from menu quality
-    // popularity is derived linearly from rating: rating=1 -> 0.1, rating=5 -> 1.0
-    popularity = 0.1 + (rating - 1.0) * (0.9 / 4.0);
-    if (popularity < 0.1) popularity = 0.1;
-    if (popularity > 1.0) popularity = 1.0;
+    // effective rating includes persistent modifier from events
+    double effectiveRating = rating * (1.0 + ratingModifier);
+    if (effectiveRating < 1.0) effectiveRating = 1.0;
+    if (effectiveRating > 5.0) effectiveRating = 5.0;
         // compute average price from the current menu; fallback to 50.0 when menu is empty
         double avgPrice;
         if (!menu.isEmpty()) {
@@ -148,10 +149,10 @@ public class RestaurantSimulator {
         // compute employee wage based on average menu quality: wage = basePay * (1 + avgMenuQuality)
         this.employeeWage = (int)Math.round(baseEmployeePay * (1.0 + this.avgMenuQuality));
 
-        // determine number of customers this month — influenced by capacity (size) and menu quality/popularity
-        // demandFactor mapped from average menu quality: 0.0 -> 0.5, 1.0 -> 1.0 (so quality helps fill capacity)
-        double demandFactor = 0.5 + (this.avgMenuQuality * 0.5); // 0.5 .. 1.0
-        int customers = (int)Math.round(size * demandFactor * popularity);
+    // determine number of customers this month — influenced by capacity (size) and effective rating
+    double t = (effectiveRating - 1.0) / 4.0; // 0..1
+    double demandFactor = 0.1 + t * 0.9; // 0.1 .. 1.0
+    int customers = (int)Math.round(size * demandFactor);
         if (customers < 0) customers = 0;
         if (customers > size) customers = size; // cannot exceed capacity
 
@@ -183,6 +184,13 @@ public class RestaurantSimulator {
             recentCustomers.add(this.lastCustomers);
         }
 
+        // decay persistent rating modifier towards 0 by 0.1 each month
+        if (this.ratingModifier > 0.0) {
+            this.ratingModifier = Math.max(0.0, this.ratingModifier - 0.1);
+        } else if (this.ratingModifier < 0.0) {
+            this.ratingModifier = Math.min(0.0, this.ratingModifier + 0.1);
+        }
+
         return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, customers, size, rating, this.employeeWage, this.monthlySpendings);
     }
 
@@ -206,6 +214,26 @@ public class RestaurantSimulator {
     // next upgrade cost for UI display
     public synchronized double getNextUpgradeCost() {
         return 50000.0 * (0.8 * sizeLevel.level());
+    }
+
+    // Apply a percentage change to the next monthly income (e.g., 0.1 => +10%) — this is a one-time immediate effect on monthlyEarnings
+    public synchronized void applyMonthlyIncomePercentChange(double pct) {
+        // scale monthlyEarnings by (1 + pct) for the purposes of the current bookkeeping.
+        this.monthlyEarnings = Math.round((this.monthlyEarnings * (1.0 + pct)) * 100.0) / 100.0;
+        this.totalEarnings = Math.round((this.totalEarnings * (1.0 + pct)) * 100.0) / 100.0;
+    }
+
+    // Add or subtract an absolute amount to total money (positive or negative)
+    public synchronized void addToTotalMoney(double delta) {
+        this.totalMoney += delta;
+    }
+
+    // Adjust rating by a fractional percent (e.g., 0.05 -> increase rating by 5%) — persistent modifier
+    public synchronized void adjustRatingByPercent(double pct) {
+        this.ratingModifier += pct;
+        // clamp modifier to reasonable range (-0.9 .. +5.0)
+        if (this.ratingModifier < -0.9) this.ratingModifier = -0.9;
+        if (this.ratingModifier > 5.0) this.ratingModifier = 5.0;
     }
 
     public synchronized double getRating() { return rating; }
