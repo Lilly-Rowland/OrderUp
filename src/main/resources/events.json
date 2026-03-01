@@ -79,4 +79,61 @@
     "popularityPercent": -0.01,
     "image": "/images/price_spike.png"
   }
+  ,
+  {
+    "name": "Toilet flooded",
+    "description": "A major plumbing failure forces a temporary closure and repairs.",
+    "incomePercent": -0.10,
+    "wealthDelta": -1000.0,
+    "popularityPercent": -0.10,
+    "image": ""
+  },
+  {
+    "name": "Winter storm",
+    "description": "Severe weather keeps customers home and reduces foot traffic.",
+    "incomePercent": -1.0,
+    "wealthDelta": -100.0,
+    "popularityPercent": 0.0,
+    "image": ""
+  },
+  {
+    "name": "Dwayne Johnson Eats Here",
+    "description": "A surprise visit from a huge celebrity draws massive attention.",
+    "incomePercent": 0.0,
+    "wealthDelta": 0.0,
+    "popularityPercent": 0.90,
+    "image": ""
+  },
+  {
+    "name": "TikTok Viral",
+    "description": "A viral video drives a sudden spike in customers and publicity.",
+    "incomePercent": 0.50,
+    "wealthDelta": 2000.0,
+    "popularityPercent": 0.40,
+    "image": ""
+  },
+  {
+    "name": "Bad Review",
+    "description": "An influential critic posts a negative review — reputation and traffic suffer.",
+    "incomePercent": -0.20,
+    "wealthDelta": -500.0,
+    "popularityPercent": -0.25,
+    "image": ""
+  },
+  {
+    "name": "Sponsor Catered",
+    "description": "A sponsored event brings extra revenue but also temporary overhead.",
+    "incomePercent": 0.15,
+    "wealthDelta": 1500.0,
+    "popularityPercent": 0.05,
+    "image": ""
+  },
+  {
+    "name": "Spice Challenge",
+    "description": "A spicy food challenge attracts daring customers and social buzz at some cost.",
+    "incomePercent": 0.10,
+    "wealthDelta": -200.0,
+    "popularityPercent": 0.8,
+    "image": ""
+  }
 ]
