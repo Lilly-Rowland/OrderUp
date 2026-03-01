@@ -154,13 +154,15 @@ public class RestaurantSimulator {
     // determine number of customers this month — influenced by capacity (size) and effective rating
     double t = (effectiveRating - 1.0) / 4.0; // 0..1
     double demandFactor = 0.1 + t * 0.9; // 0.1 .. 1.0
-    int customers = (int)Math.round(size * demandFactor);
+    // compute monthly customers (assume up to size customers per day * 30 days)
+    int customers = (int)Math.round(size * demandFactor * 30.0*3);
         if (customers < 0) customers = 0;
-        if (customers > size) customers = size; // cannot exceed capacity
+        int maxMonthly = size * 30 * 3;
+        if (customers > maxMonthly) customers = maxMonthly; // cannot exceed monthly capacity
 
         // earnings = avgPrice * customers * 3, with small randomness +/-15%
         double variability = 0.85 + rand.nextDouble() * 0.3; // 0.85 - 1.15
-        double earnings = Math.round((avgPrice * customers * 3.0 * variability) * 100.0) / 100.0;
+        double earnings = Math.round((avgPrice * customers * variability) * 100.0) / 100.0;
         monthlyEarnings += earnings;
         totalEarnings += earnings;
         totalMoney += earnings;
@@ -177,14 +179,8 @@ public class RestaurantSimulator {
     totalMoney -= rent; // automatic monthly rent deduction
     monthlySpendings += this.employeeWage + rent + this.suppliesSpendings;
 
-        // record last customers and add to recent history queue
-        this.lastCustomers = customers;
-        if (recentCustomers.size() < 12) {
-            recentCustomers.add(this.lastCustomers);
-        } else {
-            recentCustomers.remove();
-            recentCustomers.add(this.lastCustomers);
-        }
+    // record last customers (monthly) for later processing by updateData()
+    this.lastCustomers = customers;
 
         // decay persistent rating modifier towards 0 by 0.1 each month
         if (this.ratingModifier > 0.0) {
@@ -310,11 +306,12 @@ public class RestaurantSimulator {
     }
 
     public void updateData() {
-        if(recentCustomers.size() < 12){
-            recentCustomers.add(this.lastCustomers);
-        }else{
+        int avgDaily = (int)Math.round(this.lastCustomers / 30.0);
+        if (recentCustomers.size() < 12) {
+            recentCustomers.add(avgDaily);
+        } else {
             recentCustomers.remove();
-            recentCustomers.add(this.lastCustomers);
+            recentCustomers.add(avgDaily);
         }
         double effectiveRating = getRating();
         if(recentRatings.size() < 12){

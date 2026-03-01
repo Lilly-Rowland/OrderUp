@@ -191,6 +191,10 @@ public class Main extends Application {
     advanceMonth.setPrefWidth(180);
     advanceMonth.setPrefHeight(44);
         advanceMonth.setOnAction(e -> {
+            // possibly trigger a random event (will show modal popup if one occurs)
+            RestaurantSimulator.AdvanceResult pre = new RestaurantSimulator.AdvanceResult(simulator.getYear(), simulator.getMonth(), 0.0, simulator.getMonthlyEarnings(), simulator.getRent(), simulator.getTotalMoney(), simulator.getTotalEarnings(), 0, simulator.getSize(), simulator.getRating(), simulator.getEmployeeWage(), 0.0);
+            eventManager.maybeTriggerEvent(primaryStage, simulator, pre, logArea);
+            // advance the month after events may have modified simulator state
             RestaurantSimulator.AdvanceResult r = simulator.advanceMonth();
             updateYearMonthText(yearMonthLabel, r.year, r.month);
             updateTotalMoneyButton(totalMoneyButton, r.totalMoney);
@@ -201,9 +205,7 @@ public class Main extends Application {
             printMonthlyLogs(r.year, r.month, r.monthlyEarnings, r.rent, r.employeeWage, logArea);
             rentLabel.setText(String.format("Rent: $%.2f", r.rent));
             lastSpendingLabel.setText(String.format("Last month wage: $%d | delta: %.2f", r.employeeWage, r.delta));
-            // possibly trigger a random event (will show modal popup if one occurs)
-            eventManager.maybeTriggerEvent(primaryStage, simulator, r, logArea);
-            // refresh data queues after event applied so queues record the updated rating
+            // refresh data queues after finalizing so queues record the updated rating
             simulator.updateData();
             // refresh upgrade affordance after monthly changes
             refreshUpgradeButton.run();

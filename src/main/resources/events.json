@@ -1,7 +1,7 @@
 [
   {
     "name": "City Food Festival",
-    "description": "A nearby food festival draws more diners into town — business booms for the month.",
+  "description": "A nearby food festival draws more diners into town. Business booms for the month.",
     "incomePercent": 0.20,
     "wealthDelta": 1000.0,
     "popularityPercent": 0.10,
@@ -17,7 +17,7 @@
   },
   {
     "name": "Celebrity Visit",
-    "description": "A local celebrity posts about your restaurant — customers queue for days and publicity soars.",
+  "description": "A local celebrity posts about your restaurant. Customers queue for days and publicity soars.",
     "incomePercent": 0.30,
     "wealthDelta": 5000.0,
     "popularityPercent": 0.25,
@@ -25,7 +25,7 @@
   },
   {
     "name": "Supply Shortage",
-    "description": "Key ingredient suppliers are delayed — menu items are limited and costs rise.",
+  "description": "Key ingredient suppliers are delayed. Menu items are limited and costs rise.",
     "incomePercent": -0.10,
     "wealthDelta": -1000.0,
     "popularityPercent": -0.05,
@@ -33,7 +33,7 @@
   },
   {
     "name": "Viral Rave Review",
-    "description": "A glowing online review goes viral — a sudden spike in customers follows.",
+  "description": "A glowing online review goes viral. A sudden spike in customers follows.",
     "incomePercent": 0.25,
     "wealthDelta": 2000.0,
     "popularityPercent": 0.20,
@@ -49,7 +49,7 @@
   },
   {
     "name": "Seasonal Rush",
-    "description": "Tourists arrive for the season — steady increased foot traffic for the month.",
+  "description": "Tourists arrive for the season. Foot traffic increases steadily for the month.",
     "incomePercent": 0.15,
     "wealthDelta": 800.0,
     "popularityPercent": 0.05,
@@ -57,7 +57,7 @@
   },
   {
     "name": "Equipment Failure",
-    "description": "A major piece of kitchen equipment fails and must be replaced — temporary slowdown.",
+  "description": "A major piece of kitchen equipment fails and must be replaced. Service slows until it is fixed.",
     "incomePercent": -0.05,
     "wealthDelta": -2000.0,
     "popularityPercent": -0.02,
@@ -114,7 +114,7 @@
   },
   {
     "name": "Bad Review",
-    "description": "An influential critic posts a negative review — reputation and traffic suffer.",
+  "description": "An influential critic posts a negative review. Reputation and traffic suffer.",
     "incomePercent": -0.20,
     "wealthDelta": -500.0,
     "popularityPercent": -0.25,
@@ -131,11 +131,103 @@
   },
   {
     "name": "Spice Challenge",
-    "description": "A spicy food challenge attracts daring customers and social buzz at some cost.",
+  "description": "A spicy food challenge attracts daring customers and creates social buzz at some cost.",
     "incomePercent": 0.10,
     "wealthDelta": -200.0,
   "popularityPercent": 0.8,
   "image": "",
   "optional": true
+  }
+  ,
+  {
+    "name": "Sponsor Partnership Offer",
+    "description": "A local brand offers a paid partnership: pay for branded nights to boost reputation.",
+    "incomePercent": 0.00,
+    "wealthDelta": -1200.0,
+    "popularityPercent": 0.20,
+    "image": "",
+    "optional": true
+  },
+  {
+    "name": "Chef Training Workshop",
+    "description": "Invest in a weekend workshop for your chefs to improve quality and reviews.",
+    "incomePercent": 0.05,
+    "wealthDelta": -800.0,
+    "popularityPercent": 0.15,
+    "image": "",
+    "optional": true
+  },
+  {
+    "name": "Risky Pop-Up Deal",
+  "description": "A trending pop-up collective invites you. It brings high visibility with a risk of backlash.",
+    "incomePercent": 0.30,
+    "wealthDelta": -500.0,
+    "popularityPercent": -0.05,
+    "image": "",
+    "optional": true
+  },
+  {
+    "name": "Local Charity Event",
+  "description": "Donate to a charity gala. It costs money but can significantly improve your reputation.",
+    "incomePercent": 0.00,
+    "wealthDelta": -2000.0,
+    "popularityPercent": 0.35,
+    "image": "",
+    "optional": true
+  }
+  ,
+  {
+    "name": "Interdimensional Pop-Up",
+  "description": "A vendor from somewhere not-quite-here wants to rent your kitchen for a night. The flavors are impossible and the crowds are curious.",
+    "incomePercent": 0.40,
+    "wealthDelta": 0.0,
+    "popularityPercent": 0.45,
+    "image": "",
+    "optional": true
+  },
+  {
+    "name": "Glow-in-the-Dark Soup Night",
+  "description": "A mysterious chef insists on serving luminescent broth. People take strange selfies and some leave whispering haikus.",
+    "incomePercent": 0.12,
+    "wealthDelta": 220.0,
+    "popularityPercent": 0.28,
+    "image": "",
+    "optional": true
+  },
+  {
+    "name": "Chef Swap with a Mole",
+  "description": "A literal mole is hired as a guest chef for authentic subterranean flavor. The idea is questionable but gets people talking.",
+    "incomePercent": 0.05,
+    "wealthDelta": -300.0,
+    "popularityPercent": -0.18,
+    "image": "",
+    "optional": true
+  },
+  {
+    "name": "Sentient Spoon Strike",
+  "description": "Utensils stage a small, polite strike demanding better polish. Service slows while negotiations occur.",
+    "incomePercent": -0.25,
+    "wealthDelta": 0.0,
+    "popularityPercent": 0.05,
+    "image": "",
+    "optional": false
+  },
+  {
+    "name": "Time-Loop Happy Hour",
+  "description": "For one night, the hour repeats three times. You can try to game it, but reviews remember the consequences.",
+    "incomePercent": 0.55,
+    "wealthDelta": -400.0,
+    "popularityPercent": 0.40,
+    "image": "",
+    "optional": true
+  },
+  {
+    "name": "Whispering Menu",
+    "description": "The menu starts whispering recommendations to patrons. Sales shift unpredictably as diners chase suggestions.",
+    "incomePercent": 0.08,
+    "wealthDelta": 0.0,
+    "popularityPercent": 0.22,
+    "image": "",
+    "optional": false
   }
 ]
