@@ -143,7 +143,7 @@ public class EventManager {
                     // ignore missing image
                 }
             }
-            popup.setScene(new Scene(box2, 360, 260));
+            popup.setScene(new Scene(box2, 500, 260));
             popup.showAndWait();
 
             // log event using Main.appendLog for nicer formatting
