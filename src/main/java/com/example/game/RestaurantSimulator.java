@@ -94,7 +94,7 @@ public class RestaurantSimulator {
     this.rent = this.size * 50.0;
         SizeLevel prev = sizeLevel;
         sizeLevel = sizeLevel.next();
-        return new UpgradeResult(true, cost, size, sizeLevel, String.format("Upgraded from %s(size=%d) to %s(size=%d)", prev.name(), prevSize, sizeLevel.name(), size));
+        return new UpgradeResult(true, cost, size, sizeLevel, String.format("%d",sizeLevel.level()));
     }
 
     // MenuItem is a top-level class in com.example.game.MenuItem
