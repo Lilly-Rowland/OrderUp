@@ -66,13 +66,12 @@ public class GeminiAPIClient {
         }
 
         // Create a prompt that includes the JSON data
-        String suggestionsPrompt = "Here is my restaurant menu data in JSON format:\n\n" + 
-                        menuJson + 
-                        "\n\nBased on this menu, give me 3 suggestions for how I can improve customer satisfaction in a restaurant.";
-
+        // We keep the customer prompt since that's what we actually send below;
+        // the suggestionsPrompt variable was declared earlier but never used which
+        // caused a compilation warning/error under strict linting.
         String customersPrompt = "Here is my restaurant menu data in JSON format:\n\n" + 
-                        menuJson + 
-                        "\n\nBased on this menu, give me three honest reviews (can be positive or negative) that customers might leave about this restaurant.";
+                menuJson + 
+                "\n\nBased on this menu, give me three honest reviews (can be positive or negative) that customers might leave about this restaurant.";
 
         // Send the prompt with embedded JSON to Gemini
         GenerateContentResponse customer_fb;
