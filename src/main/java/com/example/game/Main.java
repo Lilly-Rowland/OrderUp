@@ -208,6 +208,21 @@ public class Main extends Application {
         Label rentLabel = new Label(String.format("Rent: $%.2f", simulator.getRent()));
         Label lastSpendingLabel = new Label(
                 String.format("Last month wage: $%d", simulator.getEmployeeWage() / simulator.getNumEmployees(), 0.0));
+        
+
+        // Gemini Buttons -- Help with Gemini responses, will be place in the right column below the log area
+        Button getSuggestion = new Button("Get Suggestions");
+        getSuggestion.setStyle(BUTTON_STYLE + " -fx-font-size:14px; -fx-padding:10 18; -fx-background-color: linear-gradient("
+                        + ACCENT2 + ", " + ACCENT1 + "); -fx-text-fill: white;");
+        getSuggestion.setPrefWidth(180);
+        getSuggestion.setPrefHeight(44);
+        getSuggestion.setOnAction(e -> showGeminiResults("Suggestions", () -> GeminiAPIClient.getSuggestions(), getSuggestion, primaryStage));
+        Button getFeedback = new Button("Get Feedback");
+        getFeedback.setStyle(BUTTON_STYLE + " -fx-font-size:14px; -fx-padding:10 18; -fx-background-color: linear-gradient(" + ACCENT2 + ", " + ACCENT1 + "); -fx-text-fill: white;");
+        getFeedback.setPrefWidth(180);
+        getFeedback.setPrefHeight(44);
+        getFeedback.setOnAction(e -> showGeminiResults("Customer Reviews", () -> GeminiAPIClient.getCustomerReviews(), getFeedback, primaryStage));
+
 
         // Advance month button (will be placed in right column)
         Button advanceMonth = new Button("Advance Month");
@@ -337,10 +352,14 @@ public class Main extends Application {
         });
 
         BorderPane bottomBar = new BorderPane();
+        BorderPane buttonBar = new BorderPane();
         bottomBar.setLeft(spening);
         BorderPane.setAlignment(spening, Pos.CENTER_LEFT);
-        bottomBar.setRight(advanceMonth);
+        // add the advance month and gemini buttons
+        VBox rightButtons = new VBox(8, getSuggestion, getFeedback, advanceMonth);
         BorderPane.setAlignment(advanceMonth, Pos.CENTER_RIGHT);
+        buttonBar.setCenter(rightButtons);
+        bottomBar.setRight(buttonBar);
         bottomBar.setPadding(new Insets(10));
         root.setBottom(bottomBar);
 
@@ -348,6 +367,46 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
         primaryStage.show();
+    }
+
+    private static void showGeminiResults(String title, java.util.function.Supplier<String> apiCall, Button button, Stage owner) {
+        button.setDisable(true);
+        button.setText("Loading Gemini...");
+        javafx.concurrent.Task<String> task = new javafx.concurrent.Task<String>() {
+            @Override
+            protected String call() throws Exception {
+                return apiCall.get();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            String result = task.getValue();
+            Stage popup = new Stage();
+            popup.initOwner(owner);
+            popup.initModality(Modality.APPLICATION_MODAL);
+            popup.setTitle(title);
+
+            TextArea res = new TextArea(result);
+            res.setWrapText(true);
+            res.setEditable(false);
+            res.setStyle("-fx-font-family: 'Menlo', 'Monaco', 'Courier New', monospace; -fx-font-size:11px; -fx-padding:8;");
+
+            VBox box = new VBox(10, res);
+            box.setPadding(new Insets(10));
+            popup.setScene(new Scene(box, 500, 300));
+            popup.showAndWait();
+
+            button.setDisable(false);
+            button.setText(title.contains("Suggestions") ? "Get Suggestions" : "Get Feedback");
+        });
+
+        task.setOnFailed(ev -> {
+            appendLog(new TextArea(), title + " Error", task.getException().getMessage());
+            button.setDisable(false);
+            button.setText(title.contains("Suggestions") ? "Get Suggestions" : "Get Feedback");
+        });
+
+        new Thread(task).start();
     }
 
     // helper to set year/month label text

@@ -54,35 +54,36 @@ public class GeminiAPIClient {
         throw new RuntimeException("Request failed after retries");
     }
 
-    public static void main(String[] args) {
-        // The Client reads automatically from GOOGLE_API_KEY environment variable
-        Client client = new Client();
+    private static String buildSuggestionsPrompt(String menuJson){
+        return "Here is my restaurant menu data. " + menuJson + 
+        "\n\nBased on this menu, can you give me honest suggestions on how I can improve the restaurant?";
+    }
 
-        // Read the menu JSON file
+    private static String buildFeedbackPrompt(String menuJson){
+        return "Here is my restaurant menu data. " + menuJson + 
+        "\n\nBased on this menu, can you give me honest feedback on how my restaurant is doing and what I can improve?";
+    }
+
+    public static String getSuggestions(){
+        Client client = new Client();
         String menuJson = getMenuOptionsJson();
         if (menuJson == null) {
-            System.out.println("Failed to load menu data.");
-            return;
+            return "Error: Could not load menu data.";
         }
+        String prompt = buildSuggestionsPrompt(menuJson);
+        GenerateContentResponse response = generateWithRetry(client, prompt);
+        return response.text();
+    }
 
-        // Create a prompt that includes the JSON data
-        // We keep the customer prompt since that's what we actually send below;
-        // the suggestionsPrompt variable was declared earlier but never used which
-        // caused a compilation warning/error under strict linting.
-        String customersPrompt = "Here is my restaurant menu data in JSON format:\n\n" + 
-                menuJson + 
-                "\n\nBased on this menu, give me three honest reviews (can be positive or negative) that customers might leave about this restaurant.";
-
-        // Send the prompt with embedded JSON to Gemini
-        GenerateContentResponse customer_fb;
-        try {
-            customer_fb = generateWithRetry(client, customersPrompt);
-        } catch (Exception e) {
-            System.out.println("Gemini request failed after retries. If this keeps happening, wait 1-2 minutes before retrying.");
-            System.out.println("Details: " + e.getMessage());
-            return;
+    public static String getCustomerReviews(){
+        Client client = new Client();
+        String menuJson = getMenuOptionsJson();
+        if (menuJson == null) {
+            return "Error: Could not load menu data.";
         }
-        
-        System.out.println(customer_fb.text());
+        String prompt = buildFeedbackPrompt(menuJson);
+        GenerateContentResponse response = generateWithRetry(client, prompt);
+        return response.text();
     }
 }
+
