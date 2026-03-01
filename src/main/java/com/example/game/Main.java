@@ -78,15 +78,10 @@ public class Main extends Application {
     final String MENU_STYLE = "-fx-border-color: transparent; -fx-background-color: transparent; -fx-padding:8;";
 
         // Create restaurant image
-        ImageView centralImage = new ImageView();
-        try {
-            Image img = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
-            centralImage.setImage(img);
-            centralImage.setPreserveRatio(true);
-            centralImage.setFitWidth(200);
-        } catch (Exception ex) {
-            // ignore if image missing
-        }
+        Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
+        ImageView centralImage = new ImageView(image);
+        centralImage.setPreserveRatio(true);
+        centralImage.setFitWidth(500);
 
     // Log area on center-right
     // Create Log Area (styled for readability)
@@ -140,6 +135,12 @@ public class Main extends Application {
             if(ur.success){
                 String message = String.format("Current Level: %s | Cost: -$%.2f", ur.message, ur.cost);
                 appendLog(logArea, "Upgrade successful", message);
+                if(simulator.getLevel() == 3){
+                    centralImage.setImage(new Image(getClass().getResource("/images/restaurant_v2.png").toExternalForm()));
+                }else if(simulator.getLevel() > 6){
+                    centralImage.setImage(new Image(getClass().getResource("/images/restaurant_v3.png").toExternalForm()));
+                }
+
             }else{
                 String message = String.format("Needed: $%.2f", ur.cost);
                 appendLog(logArea, "Upgrade failed", message);

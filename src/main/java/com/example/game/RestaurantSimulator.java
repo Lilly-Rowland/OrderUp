@@ -202,6 +202,9 @@ public class RestaurantSimulator {
     public synchronized List<MenuItem> getMenu() {
         return new ArrayList<>(menu);
     }
+    public synchronized int getLevel(){
+        return sizeLevel.level();
+    }
 
     public synchronized void setNumCustomers(int n) { setSize(n); }
     public synchronized int getNumCustomers() { return size; }
