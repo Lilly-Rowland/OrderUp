@@ -125,15 +125,17 @@
     "description": "A sponsored event brings extra revenue but also temporary overhead.",
     "incomePercent": 0.15,
     "wealthDelta": 1500.0,
-    "popularityPercent": 0.05,
-    "image": ""
+  "popularityPercent": 0.05,
+  "image": "",
+  "optional": true
   },
   {
     "name": "Spice Challenge",
     "description": "A spicy food challenge attracts daring customers and social buzz at some cost.",
     "incomePercent": 0.10,
     "wealthDelta": -200.0,
-    "popularityPercent": 0.8,
-    "image": ""
+  "popularityPercent": 0.8,
+  "image": "",
+  "optional": true
   }
 ]
