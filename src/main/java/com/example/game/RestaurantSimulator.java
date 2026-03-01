@@ -21,6 +21,8 @@ public class RestaurantSimulator {
     private final List<MenuItem> menu = new ArrayList<>(); //current menu
     private final Random rand = new Random();
     private double popularity = 0.5; // 0.0 - 1.0
+    // persistent modifier applied by events (fractional, e.g., 0.1 = +10%)
+    private double popularityModifier = 0.0;
     // Metric Trackings
     private Queue<Integer> recentCustomers = new LinkedList<>();
     private Queue<Double> recentRatings = new LinkedList<>();
@@ -133,8 +135,12 @@ public class RestaurantSimulator {
     // compute monthly earnings from menu average price, capacity (size) and popularity
     recomputeRatingFromMenu(); // rating still derived from menu quality
     // popularity is derived linearly from rating: rating=1 -> 0.1, rating=5 -> 1.0
-    popularity = 0.1 + (rating - 1.0) * (0.9 / 4.0);
-    if (popularity < 0.1) popularity = 0.1;
+    double basePopularity = 0.1 + (rating - 1.0) * (0.9 / 4.0);
+    if (basePopularity < 0.1) basePopularity = 0.1;
+    if (basePopularity > 1.0) basePopularity = 1.0;
+    // apply persistent event modifier
+    popularity = basePopularity * (1.0 + popularityModifier);
+    if (popularity < 0.0) popularity = 0.0;
     if (popularity > 1.0) popularity = 1.0;
         // compute average price from the current menu; fallback to 50.0 when menu is empty
         double avgPrice;
@@ -183,6 +189,13 @@ public class RestaurantSimulator {
             recentCustomers.add(this.lastCustomers);
         }
 
+        // decay persistent popularity modifier towards 0 by 0.1 each month
+        if (this.popularityModifier > 0.0) {
+            this.popularityModifier = Math.max(0.0, this.popularityModifier - 0.1);
+        } else if (this.popularityModifier < 0.0) {
+            this.popularityModifier = Math.min(0.0, this.popularityModifier + 0.1);
+        }
+
         return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, customers, size, rating, this.employeeWage, this.monthlySpendings);
     }
 
@@ -206,6 +219,26 @@ public class RestaurantSimulator {
     // next upgrade cost for UI display
     public synchronized double getNextUpgradeCost() {
         return 50000.0 * (0.8 * sizeLevel.level());
+    }
+
+    // Apply a percentage change to the next monthly income (e.g., 0.1 => +10%) — this is a one-time immediate effect on monthlyEarnings
+    public synchronized void applyMonthlyIncomePercentChange(double pct) {
+        // scale monthlyEarnings by (1 + pct) for the purposes of the current bookkeeping.
+        this.monthlyEarnings = Math.round((this.monthlyEarnings * (1.0 + pct)) * 100.0) / 100.0;
+        this.totalEarnings = Math.round((this.totalEarnings * (1.0 + pct)) * 100.0) / 100.0;
+    }
+
+    // Add or subtract an absolute amount to total money (positive or negative)
+    public synchronized void addToTotalMoney(double delta) {
+        this.totalMoney += delta;
+    }
+
+    // Adjust popularity by a fractional percent (e.g., 0.05 -> increase by 5% of current popularity)
+    public synchronized void adjustPopularityByPercent(double pct) {
+    this.popularityModifier += pct;
+    // clamp modifier to reasonable range (-0.9 .. +5.0)
+    if (this.popularityModifier < -0.9) this.popularityModifier = -0.9;
+    if (this.popularityModifier > 5.0) this.popularityModifier = 5.0;
     }
 
     public synchronized double getRating() { return rating; }
