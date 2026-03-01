@@ -146,23 +146,16 @@ public class EventManager {
             popup.setScene(new Scene(box2, 360, 260));
             popup.showAndWait();
 
-            // log event.
+            // log event using Main.appendLog for nicer formatting
             if (logArea != null) {
                 String sign = e.wealthDelta >= 0 ? "+" : "";
-                String log = String.format("EVENT: %s — %s | income%% %.2f%% | wealth %s%.2f | rating%% %.2f%%", e.name, e.description, e.incomePercent * 100.0, sign, e.wealthDelta, e.popularityPercent * 100.0);
-                String prev = logArea.getText();
-                if (prev == null || prev.isEmpty()) logArea.setText(log);
-                else logArea.setText(prev + "\n" + log);
-                logArea.positionCaret(logArea.getText().length());
+                String body = String.format("%s\nIncome%%: %.2f%% | Wealth: %s%.2f | Rating%%: %.2f%%", e.description, e.incomePercent * 100.0, sign, e.wealthDelta, e.popularityPercent * 100.0);
+                Main.appendLog(logArea, "Event: " + e.name, body);
             }
         } else {
             // user declined optional event — log that it was skipped
             if (logArea != null) {
-                String prev = logArea.getText();
-                String log = String.format("EVENT: %s was declined by user.", e.name);
-                if (prev == null || prev.isEmpty()) logArea.setText(log);
-                else logArea.setText(prev + "\n" + log);
-                logArea.positionCaret(logArea.getText().length());
+                Main.appendLog(logArea, "Event declined", String.format("%s was declined by user.", e.name));
             }
         }
         if(e.wealthDelta >= 0){

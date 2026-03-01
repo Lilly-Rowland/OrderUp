@@ -18,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -63,10 +64,18 @@ public class Main extends Application {
     // CREATE MAIN WINDOW
     primaryStage.setTitle("Order Up");
 
-    // shared styles
-    final String BUTTON_STYLE = "-fx-background-color: linear-gradient(#ffffff,#e6e6e6); -fx-border-color:#cfcfcf; -fx-border-radius:6; -fx-background-radius:6; -fx-padding:6 10; -fx-font-weight:bold;";
-    final String TOPBAR_STYLE = "-fx-background-color: linear-gradient(#ffffff, #f3f3f3); -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;";
-    final String MENU_STYLE = "-fx-border-color:#ddd; -fx-border-width:1; -fx-background-color:#fbfbfb; -fx-padding:6;";
+    // shared styles using requested color scheme: #cc0066, #ff5050, #ff6600
+    final String ACCENT1 = "#cc0066"; // primary
+    final String ACCENT2 = "#ff5050"; // secondary
+    final String ACCENT3 = "#ff6600"; // highlight
+    final String BUTTON_STYLE = String.join("",
+        "-fx-background-color: linear-gradient(#ffffff, derive(" + ACCENT1 + ", -10%));",
+        " -fx-border-color: derive(" + ACCENT1 + ", -20%);",
+        " -fx-border-radius:8; -fx-background-radius:8; -fx-padding:8 12; -fx-font-weight:bold; -fx-text-fill: white;",
+        " -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.12) , 4,0,0,1);");
+    // keep panels transparent so wallpaper is visible
+    final String TOPBAR_STYLE = "-fx-background-color: transparent;";
+    final String MENU_STYLE = "-fx-border-color: transparent; -fx-background-color: transparent; -fx-padding:8;";
 
         // Create restaurant image
         Image image = new Image(getClass().getResource("/images/restaurant_v2.png").toExternalForm());
@@ -74,18 +83,23 @@ public class Main extends Application {
         centralImage.setPreserveRatio(true);
         centralImage.setFitWidth(500);
 
-        // Log area on center-right
-        // Create Log Area
-        TextArea logArea = new TextArea();
-        logArea.setEditable(false);
-        logArea.setWrapText(true);
-        logArea.setPrefColumnCount(20);
-        logArea.setPrefRowCount(10);
+    // Log area on center-right
+    // Create Log Area (styled for readability)
+    TextArea logArea = new TextArea();
+    logArea.setEditable(false);
+    logArea.setWrapText(true);
+    logArea.setPrefColumnCount(30);
+    logArea.setPrefRowCount(12);
+    logArea.setFocusTraversable(false);
+    // monospace font and subtle background so wallpaper shows through
+    logArea.setStyle("-fx-font-family: 'Menlo', 'Monaco', 'Courier New', monospace; -fx-font-size:12px; -fx-control-inner-background: rgba(255,255,255,0.06); -fx-text-fill: #111; -fx-padding:8;");
 
         // LEFT/ CENTER/ RIGHT layout per new design
         // LEFT: Year/Month label (updates), customize menu (real), metrics button, STATS (rent, last spending)
-        Label yearMonthLabel = new Label();
-        yearMonthLabel.setStyle("-fx-font-weight:bold;");
+    Label yearMonthLabel = new Label();
+    // pop-out style: larger, colored background, rounded and slightly elevated
+    yearMonthLabel.setStyle("-fx-font-weight:bold; -fx-font-size:16px; -fx-background-color: " + ACCENT1 + "; -fx-text-fill: white; -fx-padding:6 10; -fx-background-radius:8; -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.18) , 6,0,0,2);");
+    yearMonthLabel.setAlignment(Pos.CENTER_LEFT);
         updateYearMonthText(yearMonthLabel, simulator.getYear(), simulator.getMonth());
 
         // keep existing metric labels for internal updates
@@ -119,11 +133,11 @@ public class Main extends Application {
             updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
             sizeLabel.setText(String.format("Size: %d", simulator.getSize()));
             if(ur.success){
-                String message = String.format("Upgrade successful! \n Current Level: %s Cost: -$%.2f", ur.message.toString(), ur.cost);
-                appendLog(logArea, message);
+                String message = String.format("Current Level: %s | Cost: -$%.2f", ur.message, ur.cost);
+                appendLog(logArea, "Upgrade successful", message);
             }else{
-                String message = String.format("Failed to upgrade size. Not enough money.", ur.cost);
-                appendLog(logArea, message);
+                String message = String.format("Needed: $%.2f", ur.cost);
+                appendLog(logArea, "Upgrade failed", message);
             }
             refreshUpgradeButton.run();
         });
@@ -141,9 +155,13 @@ public class Main extends Application {
         });
         customizeButton.setStyle(BUTTON_STYLE);
 
-        // Metrics button (same action as before)
-        Button metricsButton = new Button("metrics");
-        metricsButton.setOnAction(e -> {
+    // Metrics button (styled)
+    Button metricsButton = new Button("Metrics");
+    metricsButton.setStyle(BUTTON_STYLE + " -fx-background-color: linear-gradient(" + ACCENT2 + ", " + ACCENT1 + "); -fx-font-size:13px; -fx-padding:8 14; -fx-text-fill: white;");
+    metricsButton.setPrefWidth(140);
+    metricsButton.setPrefHeight(40);
+    Tooltip.install(metricsButton, new Tooltip("Open performance metrics and charts"));
+    metricsButton.setOnAction(e -> {
             Queue<Integer> recentCustomers = simulator.getCustomerData();
             Queue<Double> recentRatings = simulator.getRatingData();
             Queue<Double> recentEarnings = simulator.getRecentEarnings();
@@ -161,8 +179,12 @@ public class Main extends Application {
         Label rentLabel = new Label(String.format("Rent: $%.2f", simulator.getRent()));
         Label lastSpendingLabel = new Label(String.format("Last month wage: $%d | delta: %.2f", simulator.getEmployeeWage(), 0.0));
 
-        // Advance month button (will be placed in right column)
-        Button advanceMonth = new Button("advance month");
+    // Advance month button (will be placed in right column)
+    Button advanceMonth = new Button("Advance Month");
+    // larger, prettier style
+    advanceMonth.setStyle(BUTTON_STYLE + " -fx-font-size:14px; -fx-padding:10 18; -fx-background-color: linear-gradient(" + ACCENT3 + ", " + ACCENT2 + "); -fx-text-fill: white;");
+    advanceMonth.setPrefWidth(180);
+    advanceMonth.setPrefHeight(44);
         advanceMonth.setOnAction(e -> {
             RestaurantSimulator.AdvanceResult r = simulator.advanceMonth();
             updateYearMonthText(yearMonthLabel, r.year, r.month);
@@ -187,9 +209,16 @@ public class Main extends Application {
             monthlyEarningsLabel.setText(String.format("Monthly earnings: $%.2f", simulator.getMonthlyEarnings()));
         });
 
-        // Set up scene layout
+        // Set up scene layout and wallpaper background
         BorderPane root = new BorderPane();
         root.setCenter(centralImage);
+        try {
+            Image wallpaper = new Image(getClass().getResource("/images/wallpaper.png").toExternalForm());
+            root.setStyle(String.format("-fx-background-image: url('%s'); -fx-background-size: cover; -fx-background-position: center center;", wallpaper.getUrl()));
+        } catch (Exception ex) {
+            // fallback: transparent background (no white overlay)
+            root.setStyle("-fx-background-color: transparent;");
+        }
 
         Label menuHeader = new Label("Menu");
         menuHeader.setStyle("-fx-font-weight:bold;");
@@ -200,8 +229,8 @@ public class Main extends Application {
         leftCol.setAlignment(Pos.TOP_LEFT);
         leftCol.setPadding(new Insets(8));
 
-        Label title = new Label("OrderUp!");
-        title.setStyle("-fx-font-size:24px; -fx-font-weight:bold;");
+    Label title = new Label("OrderUp!");
+    title.setStyle("-fx-font-size:28px; -fx-font-weight:bold; -fx-text-fill: " + ACCENT1 + ";");
         Button howTo = new Button("How to play...");
         howTo.setOnAction(e -> {
             Stage popup = new Stage();
@@ -216,30 +245,34 @@ public class Main extends Application {
             popup.setScene(new Scene(box, 360, 200));
             popup.showAndWait();
         });
-        howTo.setStyle(BUTTON_STYLE);
+    howTo.setStyle(BUTTON_STYLE + " -fx-background-color: linear-gradient(" + ACCENT1 + ", " + ACCENT2 + ");");
 
         VBox centerCol = new VBox(10, title, howTo, centralImage);
         centerCol.setAlignment(Pos.CENTER);
         centerCol.setPadding(new Insets(8));
 
-        // RIGHT column
+    // RIGHT column
         VBox rightCol = new VBox(8);
         rightCol.setPadding(new Insets(8));
         rightCol.setAlignment(Pos.TOP_RIGHT);
-        totalMoneyButton.setStyle(BUTTON_STYLE);
+    totalMoneyButton.setStyle(BUTTON_STYLE + " -fx-background-color: linear-gradient(" + ACCENT3 + ", derive(" + ACCENT3 + ", -10%));");
         VBox.setVgrow(logArea, Priority.ALWAYS);
         rightCol.getChildren().addAll(totalMoneyButton, logArea, advanceMonth);
 
-        BorderPane topBar = new BorderPane();
+    BorderPane topBar = new BorderPane();
         topBar.setLeft(leftCol);
         topBar.setCenter(centerCol);
         topBar.setRight(rightCol);
         topBar.setStyle(TOPBAR_STYLE);
         root.setTop(topBar);
 
-        // BOTTOM area: left = spening button, right = advance month
-        Button spening = new Button("spening");
-        spening.setOnAction(e -> {
+    // BOTTOM area: left = spening button, right = advance month
+    Button spening = new Button("Spending Info");
+    // larger, prettier style
+    spening.setStyle(BUTTON_STYLE + " -fx-font-size:13px; -fx-padding:8 14; -fx-background-color: linear-gradient(" + ACCENT1 + ", derive(" + ACCENT1 + ", -10%)); -fx-text-fill: white;");
+    spening.setPrefWidth(160);
+    spening.setPrefHeight(40);
+    spening.setOnAction(e -> {
             double rent = simulator.getRent();
             Stage popup = new Stage();
             popup.initOwner(primaryStage);
@@ -281,23 +314,24 @@ public class Main extends Application {
         }
     }
 
-    // Log helper — prefix with timestamp
-    private static void appendLog(TextArea logArea, String line) {
-        String entry = String.format("%s", line);
+    // Log helper — timestamped, spaced entries. Made public so EventManager can reuse it.
+    public static void appendLog(TextArea logArea, String title, String body) {
+        if (logArea == null) return;
+        StringBuilder sb = new StringBuilder();
+        sb.append(title).append("\n");
+        sb.append(body).append("\n");
+        sb.append("--------------------------------------------------\n");
+
         String prev = logArea.getText();
-        if (prev == null || prev.isEmpty()) {
-            logArea.setText(entry);
-        } else {
-            logArea.setText(prev + "\n" + entry);
-        }
+        if (prev == null || prev.isEmpty()) logArea.setText(sb.toString());
+        else logArea.setText(prev + "\n" + sb.toString());
         logArea.positionCaret(logArea.getText().length());
     }
 
     private static void printMonthlyLogs(int year, int month, double monthlyEarnings, double rent, int employeeWage, TextArea logArea) {
-        appendLog(logArea, "------" + String.format("%d-%02d", year, month) + "------");
-        appendLog(logArea, "Paid Rent: -$" + String.format("%.2f", rent));
-        appendLog(logArea, "Paid Employee Wages: -$" + employeeWage);
-        appendLog(logArea, "Monthly Earnings: +$" + String.format("%.2f", monthlyEarnings));
+        String title = String.format("Monthly Summary %d-%02d", year, month);
+        String body = String.format("Paid Rent: -$%.2f\nPaid Employee Wages: -$%d\nMonthly Earnings: +$%.2f", rent, employeeWage, monthlyEarnings);
+        appendLog(logArea, title, body);
     }
     
     public static void main(String[] args) {
