@@ -2,8 +2,6 @@ package com.example.game;
 
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -177,11 +175,17 @@ public class Main extends Application {
             printMonthlyLogs(r.year, r.month, r.monthlyEarnings, r.rent, r.employeeWage, logArea);
             rentLabel.setText(String.format("Rent: $%.2f", r.rent));
             lastSpendingLabel.setText(String.format("Last month wage: $%d | delta: %.2f", r.employeeWage, r.delta));
+            // possibly trigger a random event (will show modal popup if one occurs)
+            eventManager.maybeTriggerEvent(primaryStage, simulator, r, logArea);
+            // refresh data queues after event applied so queues record the updated rating
             simulator.updateData();
             // refresh upgrade affordance after monthly changes
             refreshUpgradeButton.run();
-            // possibly trigger a random event (will show modal popup if one occurs)
-            eventManager.maybeTriggerEvent(primaryStage, simulator, r, logArea);
+            // refresh rating in UI in case event changed it
+            ratingLabel.setText(String.format("Rating: %.2f", simulator.getRating()));
+            // refresh money and earnings in case event adjusted them
+            updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
+            monthlyEarningsLabel.setText(String.format("Monthly earnings: $%.2f", simulator.getMonthlyEarnings()));
         });
 
         // Set up scene layout

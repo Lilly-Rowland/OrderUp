@@ -191,7 +191,7 @@ public class RestaurantSimulator {
             this.ratingModifier = Math.min(0.0, this.ratingModifier + 0.1);
         }
 
-        return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, customers, size, rating, this.employeeWage, this.monthlySpendings);
+    return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, customers, size, effectiveRating, this.employeeWage, this.monthlySpendings);
     }
 
     // menu management
@@ -236,7 +236,12 @@ public class RestaurantSimulator {
         if (this.ratingModifier > 5.0) this.ratingModifier = 5.0;
     }
 
-    public synchronized double getRating() { return rating; }
+    public synchronized double getRating() {
+        double effective = rating * (1.0 + ratingModifier);
+        if (effective < 1.0) effective = 1.0;
+        if (effective > 5.0) effective = 5.0;
+        return effective;
+    }
 
     public synchronized int getEmployeeWage() { return employeeWage; }
 
@@ -301,11 +306,12 @@ public class RestaurantSimulator {
             recentCustomers.remove();
             recentCustomers.add(this.lastCustomers);
         }
+        double effectiveRating = getRating();
         if(recentRatings.size() < 12){
-            recentRatings.add(rating);
+            recentRatings.add(effectiveRating);
         }else{
             recentRatings.remove();
-            recentRatings.add(rating);
+            recentRatings.add(effectiveRating);
         }
         if(recentEarings.size() < 12){
             recentEarings.add(monthlyEarnings);
