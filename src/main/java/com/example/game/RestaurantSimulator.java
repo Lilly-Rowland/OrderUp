@@ -14,6 +14,7 @@ public class RestaurantSimulator {
     private double monthlyEarnings;
     private double totalEarnings;
     private double monthlySpendings;
+    private double suppliesSpendings;
     private double rent;
     private int size;
     private double rating; // 0.0 - 5.0, derived from menu quality
@@ -32,6 +33,8 @@ public class RestaurantSimulator {
 
     // cached average menu quality (0.0 - 1.0)
     private double avgMenuQuality = 0.0;
+    // last computed customers this month
+    private int lastCustomers = 0;
 
     public RestaurantSimulator(int startYear, int startMonth, double startTotalMoney, double rent) {
         this.year = startYear;
@@ -144,9 +147,17 @@ public class RestaurantSimulator {
         }
         // compute employee wage based on average menu quality: wage = basePay * (1 + avgMenuQuality)
         this.employeeWage = (int)Math.round(baseEmployeePay * (1.0 + this.avgMenuQuality));
-    // earnings = avgPrice * capacity * 3 * popularity, with small randomness +/-15%
-    double variability = 0.85 + rand.nextDouble() * 0.3; // 0.85 - 1.15
-    double earnings = Math.round((avgPrice * size * 3.0 * popularity * variability) * 100.0) / 100.0;
+
+        // determine number of customers this month — influenced by capacity (size) and menu quality/popularity
+        // demandFactor mapped from average menu quality: 0.0 -> 0.5, 1.0 -> 1.0 (so quality helps fill capacity)
+        double demandFactor = 0.5 + (this.avgMenuQuality * 0.5); // 0.5 .. 1.0
+        int customers = (int)Math.round(size * demandFactor * popularity);
+        if (customers < 0) customers = 0;
+        if (customers > size) customers = size; // cannot exceed capacity
+
+        // earnings = avgPrice * customers * 3, with small randomness +/-15%
+        double variability = 0.85 + rand.nextDouble() * 0.3; // 0.85 - 1.15
+        double earnings = Math.round((avgPrice * customers * 3.0 * variability) * 100.0) / 100.0;
         monthlyEarnings = earnings;
         totalEarnings += earnings;
         totalMoney += earnings;
@@ -154,10 +165,25 @@ public class RestaurantSimulator {
     // subtract employee wage (monthly spending)
     totalMoney -= this.employeeWage;
 
-    totalMoney -= rent; // automatic monthly rent deduction
-    monthlySpendings = this.employeeWage + rent;
+    // supplies/spoilage spendings grow with menu quality (higher quality uses more/better ingredients)
+    // model as a fraction of earnings: factor = 5% .. 20% depending on avgMenuQuality (0.0 -> 0.05, 1.0 -> 0.20)
+    double suppliesFactor = 0.05 + (this.avgMenuQuality * 0.15);
+    this.suppliesSpendings = Math.round((earnings * suppliesFactor) * 100.0) / 100.0;
+    totalMoney -= this.suppliesSpendings;
 
-    return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, size, size, rating, this.employeeWage, this.monthlySpendings);
+    totalMoney -= rent; // automatic monthly rent deduction
+    monthlySpendings = this.employeeWage + rent + this.suppliesSpendings;
+
+        // record last customers and add to recent history queue
+        this.lastCustomers = customers;
+        if (recentCustomers.size() < 12) {
+            recentCustomers.add(this.lastCustomers);
+        } else {
+            recentCustomers.remove();
+            recentCustomers.add(this.lastCustomers);
+        }
+
+        return new AdvanceResult(year, month, delta, earnings, rent, totalMoney, totalEarnings, customers, size, rating, this.employeeWage, this.monthlySpendings);
     }
 
     // menu management
@@ -176,6 +202,11 @@ public class RestaurantSimulator {
 
     public synchronized void setSize(int s) { this.size = s; this.rent = this.size * 50.0; }
     public synchronized int getSize() { return size; }
+
+    // next upgrade cost for UI display
+    public synchronized double getNextUpgradeCost() {
+        return 50000.0 * (0.8 * sizeLevel.level());
+    }
 
     public synchronized double getRating() { return rating; }
 
@@ -237,10 +268,10 @@ public class RestaurantSimulator {
 
     public void updateData() {
         if(recentCustomers.size() < 12){
-            recentCustomers.add(size);
+            recentCustomers.add(this.lastCustomers);
         }else{
             recentCustomers.remove();
-            recentCustomers.add(size);
+            recentCustomers.add(this.lastCustomers);
         }
         if(recentRatings.size() < 12){
             recentRatings.add(rating);

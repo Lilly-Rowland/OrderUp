@@ -102,13 +102,28 @@ public class Main extends Application {
             totalMoneyButton.setFocusTraversable(false);
             updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
 
-        Button upgradeSizeButton = new Button("Upgrade size");
+        Button upgradeSizeButton = new Button();
+        Runnable refreshUpgradeButton = () -> {
+            double cost = simulator.getNextUpgradeCost();
+            upgradeSizeButton.setText(String.format("Upgrade size ($%.0f)", cost));
+            if (simulator.getTotalMoney() < cost) {
+                upgradeSizeButton.setDisable(true);
+                upgradeSizeButton.setStyle("-fx-background-color: #dcdcdc; -fx-text-fill: #888; -fx-border-color:#cfcfcf; -fx-border-radius:6; -fx-background-radius:6; -fx-padding:6 10; -fx-font-weight:bold;");
+            } else {
+                upgradeSizeButton.setDisable(false);
+                upgradeSizeButton.setStyle(BUTTON_STYLE);
+            }
+        };
+
         upgradeSizeButton.setOnAction(e -> {
             RestaurantSimulator.UpgradeResult ur = simulator.upgradeSize();
             updateTotalMoneyButton(totalMoneyButton, simulator.getTotalMoney());
             sizeLabel.setText(String.format("Size: %d", simulator.getSize()));
             appendLog(logArea, String.format("Upgrade attempt: success=%b cost=%.2f result=%s", ur.success, ur.cost, ur.message));
+            refreshUpgradeButton.run();
         });
+        // initial refresh
+        refreshUpgradeButton.run();
 
         // Customize menu button from MenuManager - wrap so we can refresh UI after popup closes
         Button rawMenuBtn = menuManager.createMenuButton(primaryStage);
@@ -157,6 +172,8 @@ public class Main extends Application {
             rentLabel.setText(String.format("Rent: $%.2f", r.rent));
             lastSpendingLabel.setText(String.format("Last month wage: $%d | delta: %.2f", r.employeeWage, r.delta));
             simulator.updateData();
+            // refresh upgrade affordance after monthly changes
+            refreshUpgradeButton.run();
         });
 
     // Create Menu button (opens popup to edit menu) - handled via customizeButton
