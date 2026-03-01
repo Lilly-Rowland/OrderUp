@@ -60,6 +60,7 @@ public class Main extends Application {
     }
 
     MenuManager menuManager = new MenuManager(simulator, menuDisplay, menuListView);
+    EventManager eventManager = new EventManager();
 
     // CREATE MAIN WINDOW
     primaryStage.setTitle("Order Up");
@@ -174,6 +175,8 @@ public class Main extends Application {
             simulator.updateData();
             // refresh upgrade affordance after monthly changes
             refreshUpgradeButton.run();
+            // possibly trigger a random event (will show modal popup if one occurs)
+            eventManager.maybeTriggerEvent(primaryStage, simulator, r, logArea);
         });
 
     // Create Menu button (opens popup to edit menu) - handled via customizeButton

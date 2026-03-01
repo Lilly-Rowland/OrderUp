@@ -1,0 +1,82 @@
+[
+  {
+    "name": "City Food Festival",
+    "description": "A nearby food festival draws more diners into town — business booms for the month.",
+    "incomePercent": 0.20,
+    "wealthDelta": 1000.0,
+    "popularityPercent": 0.10,
+    "image": "/images/festival.png"
+  },
+  {
+    "name": "Critical Health Inspection",
+    "description": "An unexpected health inspection finds minor violations. Fines are issued and reputation is dented.",
+    "incomePercent": -0.15,
+    "wealthDelta": -500.0,
+    "popularityPercent": -0.08,
+    "image": "/images/inspection.png"
+  },
+  {
+    "name": "Celebrity Visit",
+    "description": "A local celebrity posts about your restaurant — customers queue for days and publicity soars.",
+    "incomePercent": 0.30,
+    "wealthDelta": 5000.0,
+    "popularityPercent": 0.25,
+    "image": "/images/celebrity.png"
+  },
+  {
+    "name": "Supply Shortage",
+    "description": "Key ingredient suppliers are delayed — menu items are limited and costs rise.",
+    "incomePercent": -0.10,
+    "wealthDelta": -1000.0,
+    "popularityPercent": -0.05,
+    "image": "/images/supplies.png"
+  },
+  {
+    "name": "Viral Rave Review",
+    "description": "A glowing online review goes viral — a sudden spike in customers follows.",
+    "incomePercent": 0.25,
+    "wealthDelta": 2000.0,
+    "popularityPercent": 0.20,
+    "image": "/images/viral.png"
+  },
+  {
+    "name": "Kitchen Fire",
+    "description": "A small fire damages equipment. You close for a few days and pay for repairs.",
+    "incomePercent": -0.50,
+    "wealthDelta": -20000.0,
+    "popularityPercent": -0.20,
+    "image": "/images/fire.png"
+  },
+  {
+    "name": "Seasonal Rush",
+    "description": "Tourists arrive for the season — steady increased foot traffic for the month.",
+    "incomePercent": 0.15,
+    "wealthDelta": 800.0,
+    "popularityPercent": 0.05,
+    "image": "/images/season.png"
+  },
+  {
+    "name": "Equipment Failure",
+    "description": "A major piece of kitchen equipment fails and must be replaced — temporary slowdown.",
+    "incomePercent": -0.05,
+    "wealthDelta": -2000.0,
+    "popularityPercent": -0.02,
+    "image": "/images/equipment.png"
+  },
+  {
+    "name": "Local Protest",
+    "description": "A protest near the block scares off customers for a while.",
+    "incomePercent": -0.20,
+    "wealthDelta": -3000.0,
+    "popularityPercent": -0.15,
+    "image": "/images/protest.png"
+  },
+  {
+    "name": "Ingredients Price Spike",
+    "description": "Wholesale food costs rise unexpectedly, increasing operating costs this month.",
+    "incomePercent": -0.08,
+    "wealthDelta": -1500.0,
+    "popularityPercent": -0.01,
+    "image": "/images/price_spike.png"
+  }
+]

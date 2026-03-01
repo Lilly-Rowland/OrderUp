@@ -208,6 +208,25 @@ public class RestaurantSimulator {
         return 50000.0 * (0.8 * sizeLevel.level());
     }
 
+    // Apply a percentage change to the next monthly income (e.g., 0.1 => +10%) — this is a one-time immediate effect on monthlyEarnings
+    public synchronized void applyMonthlyIncomePercentChange(double pct) {
+        // scale monthlyEarnings by (1 + pct) for the purposes of the current bookkeeping.
+        this.monthlyEarnings = Math.round((this.monthlyEarnings * (1.0 + pct)) * 100.0) / 100.0;
+        this.totalEarnings = Math.round((this.totalEarnings * (1.0 + pct)) * 100.0) / 100.0;
+    }
+
+    // Add or subtract an absolute amount to total money (positive or negative)
+    public synchronized void addToTotalMoney(double delta) {
+        this.totalMoney += delta;
+    }
+
+    // Adjust popularity by a fractional percent (e.g., 0.05 -> increase by 5% of current popularity)
+    public synchronized void adjustPopularityByPercent(double pct) {
+        this.popularity = this.popularity * (1.0 + pct);
+        if (this.popularity < 0.0) this.popularity = 0.0;
+        if (this.popularity > 1.0) this.popularity = 1.0;
+    }
+
     public synchronized double getRating() { return rating; }
 
     public synchronized int getEmployeeWage() { return employeeWage; }
