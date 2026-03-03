@@ -311,8 +311,23 @@ public class Main extends Application {
             popup.showAndWait();
         });
         howTo.setStyle(BUTTON_STYLE + " -fx-background-color: linear-gradient(" + ACCENT1 + ", " + ACCENT2 + ");");
+        Button strategyButton = new Button("Enter Strategy");
+        strategyButton.setStyle(BUTTON_STYLE + " -fx-text-fill: white;");
+        strategyButton.setPrefWidth(180);
+        strategyButton.setPrefHeight(40);
 
-        VBox centerCol = new VBox(10, thisIcon, title, howTo, centralImage);
+        strategyButton.setOnAction(e -> {
+            javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
+            dialog.setTitle("Enter Strategy");
+            dialog.setHeaderText("Write your business strategy:");
+            dialog.setContentText("Strategy:");
+
+            dialog.showAndWait().ifPresent(text -> {
+                Main.appendLog(logArea, "Strategy Entered", text);
+            });
+        });
+
+        VBox centerCol = new VBox(10, thisIcon, title, howTo, strategyButton, centralImage);
         centerCol.setAlignment(Pos.CENTER);
         centerCol.setPadding(new Insets(8));
         // limit the center column's height so the top region cannot grow past the
