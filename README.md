@@ -1,5 +1,18 @@
+<p align="center">
+<img width="600" height="300" alt="orderup-logo-github"
+src = "src/main/java/com/example/game/logo_git.png"
+/>
+</p>
 
-# OrderUp Restaurant Simulator
+<div align="center">
+
+![Java](https://img.shields.io/badge/Java-17+-ED8B00?logo=openjdk&logoColor=white)
+![Maven](https://img.shields.io/badge/Maven-3.6+-C71A36?logo=apachemaven&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
+</div>
+
+## 📌 Overview
 
 OrderUp is a simple Java-based restaurant simulator game built with JavaFX. The application models a restaurant's customer flow, earnings, and other metrics over time. It is intended for educational and demo purposes and can be extended with additional features.
 
