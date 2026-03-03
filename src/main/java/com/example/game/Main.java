@@ -86,26 +86,30 @@ public class Main extends Application {
 
         // Create restaurant image
         Image image = new Image(getClass().getResource("/images/restaurant_v1.png").toExternalForm());
-    ImageView centralImage = new ImageView(image);
-    centralImage.setPreserveRatio(true);
-    // keep the image a bit smaller so the top area can't push the bottom bar off-screen
-    centralImage.setFitWidth(420);
-    // also limit the image height so tall windows won't let the center area grow indefinitely
-    centralImage.setFitHeight(300);
+        ImageView centralImage = new ImageView(image);
+        centralImage.setPreserveRatio(true);
+        // keep the image a bit smaller so the top area can't push the bottom bar
+        // off-screen
+        centralImage.setFitWidth(420);
+        // also limit the image height so tall windows won't let the center area grow
+        // indefinitely
+        centralImage.setFitHeight(300);
 
-    // Log area on center-right
-    // Create Log Area (styled for readability)
-    TextArea logArea = new TextArea();
-    logArea.setEditable(false);
-    logArea.setWrapText(true);
-    logArea.setPrefColumnCount(30);
-    
-    // make the log area taller so more entries are visible without immediate scrolling
-    logArea.setPrefRowCount(15);
-    logArea.setPrefHeight(360);
-    logArea.setFocusTraversable(false);
-    // monospace font and subtle background so wallpaper shows through
-    logArea.setStyle("-fx-font-family: 'Menlo', 'Monaco', 'Courier New', monospace; -fx-font-size:12px; -fx-control-inner-background: rgba(255,255,255,0.06); -fx-text-fill: #111; -fx-padding:8;");
+        // Log area on center-right
+        // Create Log Area (styled for readability)
+        TextArea logArea = new TextArea();
+        logArea.setEditable(false);
+        logArea.setWrapText(true);
+        logArea.setPrefColumnCount(30);
+
+        // make the log area taller so more entries are visible without immediate
+        // scrolling
+        logArea.setPrefRowCount(15);
+        logArea.setPrefHeight(360);
+        logArea.setFocusTraversable(false);
+        // monospace font and subtle background so wallpaper shows through
+        logArea.setStyle(
+                "-fx-font-family: 'Menlo', 'Monaco', 'Courier New', monospace; -fx-font-size:12px; -fx-control-inner-background: rgba(255,255,255,0.06); -fx-text-fill: #111; -fx-padding:8;");
 
         // LEFT/ CENTER/ RIGHT layout per new design
         // LEFT: Year/Month label (updates), customize menu (real), metrics button,
@@ -208,21 +212,25 @@ public class Main extends Application {
         Label rentLabel = new Label(String.format("Rent: $%.2f", simulator.getRent()));
         Label lastSpendingLabel = new Label(
                 String.format("Last month wage: $%d", simulator.getEmployeeWage() / simulator.getNumEmployees(), 0.0));
-        
 
-        // Gemini Buttons -- Help with Gemini responses, will be place in the right column below the log area
+        // Gemini Buttons -- Help with Gemini responses, will be place in the right
+        // column below the log area
         Button getSuggestion = new Button("Get Suggestions");
-        getSuggestion.setStyle(BUTTON_STYLE + " -fx-font-size:14px; -fx-padding:10 18; -fx-background-color: linear-gradient("
+        getSuggestion.setStyle(
+                BUTTON_STYLE + " -fx-font-size:14px; -fx-padding:10 18; -fx-background-color: linear-gradient("
                         + ACCENT2 + ", " + ACCENT1 + "); -fx-text-fill: white;");
         getSuggestion.setPrefWidth(180);
         getSuggestion.setPrefHeight(44);
-        getSuggestion.setOnAction(e -> showGeminiResults("Suggestions", () -> GeminiAPIClient.getSuggestions(), getSuggestion, primaryStage));
+        getSuggestion.setOnAction(e -> showGeminiResults("Suggestions", () -> GeminiAPIClient.getSuggestions(),
+                getSuggestion, primaryStage));
         Button getFeedback = new Button("Get Feedback");
-        getFeedback.setStyle(BUTTON_STYLE + " -fx-font-size:14px; -fx-padding:10 18; -fx-background-color: linear-gradient(" + ACCENT2 + ", " + ACCENT1 + "); -fx-text-fill: white;");
+        getFeedback.setStyle(
+                BUTTON_STYLE + " -fx-font-size:14px; -fx-padding:10 18; -fx-background-color: linear-gradient("
+                        + ACCENT2 + ", " + ACCENT1 + "); -fx-text-fill: white;");
         getFeedback.setPrefWidth(180);
         getFeedback.setPrefHeight(44);
-        getFeedback.setOnAction(e -> showGeminiResults("Customer Reviews", () -> GeminiAPIClient.getCustomerReviews(), getFeedback, primaryStage));
-
+        getFeedback.setOnAction(e -> showGeminiResults("Customer Reviews", () -> GeminiAPIClient.getCustomerReviews(),
+                getFeedback, primaryStage));
 
         // Advance month button (will be placed in right column)
         Button advanceMonth = new Button("Advance Month");
@@ -302,32 +310,35 @@ public class Main extends Application {
             popup.setScene(new Scene(box, 360, 200));
             popup.showAndWait();
         });
-    howTo.setStyle(BUTTON_STYLE + " -fx-background-color: linear-gradient(" + ACCENT1 + ", " + ACCENT2 + ");");
+        howTo.setStyle(BUTTON_STYLE + " -fx-background-color: linear-gradient(" + ACCENT1 + ", " + ACCENT2 + ");");
 
-    VBox centerCol = new VBox(10, thisIcon, title, howTo, centralImage);
-    centerCol.setAlignment(Pos.CENTER);
-    centerCol.setPadding(new Insets(8));
-    // limit the center column's height so the top region cannot grow past the available space
-    centerCol.setMaxHeight(380);
-    centerCol.setPrefHeight(360);
-    VBox.setVgrow(centerCol, Priority.NEVER);
+        VBox centerCol = new VBox(10, thisIcon, title, howTo, centralImage);
+        centerCol.setAlignment(Pos.CENTER);
+        centerCol.setPadding(new Insets(8));
+        // limit the center column's height so the top region cannot grow past the
+        // available space
+        centerCol.setMaxHeight(380);
+        centerCol.setPrefHeight(360);
+        VBox.setVgrow(centerCol, Priority.NEVER);
 
         // RIGHT column
         VBox rightCol = new VBox(8);
         rightCol.setPadding(new Insets(8));
         rightCol.setAlignment(Pos.TOP_RIGHT);
-    totalMoneyButton.setStyle(BUTTON_STYLE + " -fx-background-color: linear-gradient(" + ACCENT3 + ", derive(" + ACCENT3 + ", -10%));");
-    // allow the log area to expand so it's comfortably tall when window space allows
-    VBox.setVgrow(logArea, Priority.ALWAYS);
-    rightCol.getChildren().addAll(totalMoneyButton, logArea);
+        totalMoneyButton.setStyle(BUTTON_STYLE + " -fx-background-color: linear-gradient(" + ACCENT3 + ", derive("
+                + ACCENT3 + ", -10%));");
+        // allow the log area to expand so it's comfortably tall when window space
+        // allows
+        VBox.setVgrow(logArea, Priority.ALWAYS);
+        rightCol.getChildren().addAll(totalMoneyButton, logArea);
 
-    BorderPane topBar = new BorderPane();
-    topBar.setLeft(leftCol);
-    topBar.setCenter(centerCol);
-    topBar.setRight(rightCol);
-    topBar.setStyle(TOPBAR_STYLE);
-    // place the main composed area in the center so the bottomBar remains visible
-    root.setCenter(topBar);
+        BorderPane topBar = new BorderPane();
+        topBar.setLeft(leftCol);
+        topBar.setCenter(centerCol);
+        topBar.setRight(rightCol);
+        topBar.setStyle(TOPBAR_STYLE);
+        // place the main composed area in the center so the bottomBar remains visible
+        root.setCenter(topBar);
 
         // BOTTOM area: left = spening button, right = advance month
         Button spening = new Button("Spending Info");
@@ -369,7 +380,8 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    private static void showGeminiResults(String title, java.util.function.Supplier<String> apiCall, Button button, Stage owner) {
+    private static void showGeminiResults(String title, java.util.function.Supplier<String> apiCall, Button button,
+            Stage owner) {
         button.setDisable(true);
         button.setText("Loading Gemini...");
         javafx.concurrent.Task<String> task = new javafx.concurrent.Task<String>() {
@@ -389,7 +401,8 @@ public class Main extends Application {
             TextArea res = new TextArea(result);
             res.setWrapText(true);
             res.setEditable(false);
-            res.setStyle("-fx-font-family: 'Menlo', 'Monaco', 'Courier New', monospace; -fx-font-size:11px; -fx-padding:8;");
+            res.setStyle(
+                    "-fx-font-family: 'Menlo', 'Monaco', 'Courier New', monospace; -fx-font-size:11px; -fx-padding:8;");
 
             VBox box = new VBox(10, res);
             box.setPadding(new Insets(10));
